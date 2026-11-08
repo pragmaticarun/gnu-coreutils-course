@@ -1,0 +1,819 @@
+{
+  "disclosure": {
+    "coreutils": "ls (GNU coreutils) 9.4",
+    "package": "9.4-3ubuntu6.3",
+    "uname": "Linux 6.12.113+ x86_64",
+    "python": "3.12.3",
+    "locale": "en_US.UTF-8",
+    "filesystemDf": "ext4",
+    "filesystemStat": "ext2/ext3",
+    "seed": 20261108,
+    "trials": 5,
+    "maxRss": "Linux ru_maxrss of waited-for children, kibibytes",
+    "warmCache": "Inputs are created in this process and reread immediately. Caches are not dropped. This is not a cold-disk measurement and not a ranking that transfers to another machine.",
+    "noRoot": true,
+    "noDropCaches": true,
+    "helper": "Most elapsed times include a short Python process that starts the command and waits. Compare variants with each other. Do not treat the absolute seconds as a shell-only measurement."
+  },
+  "benches": [
+    {
+      "id": "sort-locale",
+      "title": "sort under C versus en_US.UTF-8",
+      "question": "On a fixed 100000-line file, how do the two collations compare on this host?",
+      "input": "100000 lines, seed 20261108, vocabulary of 6 words plus an integer. 5 trials each. Output discarded by the harness.",
+      "variants": [
+        {
+          "name": "LC_ALL=C",
+          "trials": [
+            {
+              "elapsed": 0.024209,
+              "user": 0.01909,
+              "system": 0.004772,
+              "maxRssKb": 11428,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.023045,
+              "user": 0.018996,
+              "system": 0.003799,
+              "maxRssKb": 11416,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.021358,
+              "user": 0.021101,
+              "system": 0.0,
+              "maxRssKb": 11420,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.021591,
+              "user": 0.017071,
+              "system": 0.004267,
+              "maxRssKb": 11428,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.021197,
+              "user": 0.020938,
+              "system": 0.0,
+              "maxRssKb": 11388,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.021591,
+            "user": 0.01909,
+            "system": 0.003799,
+            "maxRssKb": 11420
+          }
+        },
+        {
+          "name": "LC_ALL=en_US.UTF-8",
+          "trials": [
+            {
+              "elapsed": 0.122094,
+              "user": 0.12178,
+              "system": 0.0,
+              "maxRssKb": 11844,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.122102,
+              "user": 0.113905,
+              "system": 0.007855,
+              "maxRssKb": 11736,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.123199,
+              "user": 0.118911,
+              "system": 0.003963,
+              "maxRssKb": 11788,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.122013,
+              "user": 0.121713,
+              "system": 0.0,
+              "maxRssKb": 11720,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.121945,
+              "user": 0.121743,
+              "system": 0.0,
+              "maxRssKb": 11912,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.122094,
+            "user": 0.121713,
+            "system": 0.0,
+            "maxRssKb": 11788
+          }
+        }
+      ],
+      "note": "Medians on this run: LC_ALL=C median 0.0216s, LC_ALL=en_US.UTF-8 median 0.1221s. The gap is 0.1005s and the widest trial spread is 0.0030s, so the medians are farther apart than the scatter of this sample. That is evidence about this input, this warm cache, and this machine. It is not a universal ranking and it says nothing about cold disk or a different filesystem. LC_ALL=C selects a simple byte collation. en_US.UTF-8 uses the locale's multi-level rules. A difference here is about this 100000-line input in a warm page cache, not a promise that C is always the right order or always faster."
+    },
+    {
+      "id": "sort-parallel",
+      "title": "sort --parallel=1 and --parallel=2",
+      "question": "On this numeric file, do one and two concurrent sorts separate on elapsed time?",
+      "input": "120000 seven-digit lines, seed 20261108, LC_ALL=C, numeric sort, 5 trials.",
+      "variants": [
+        {
+          "name": "--parallel=1",
+          "trials": [
+            {
+              "elapsed": 0.043871,
+              "user": 0.043594,
+              "system": 0.0,
+              "maxRssKb": 11384,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.042789,
+              "user": 0.042355,
+              "system": 0.0,
+              "maxRssKb": 11424,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.047161,
+              "user": 0.046833,
+              "system": 0.0,
+              "maxRssKb": 11428,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.042994,
+              "user": 0.042768,
+              "system": 0.0,
+              "maxRssKb": 11388,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.042948,
+              "user": 0.042627,
+              "system": 0.0,
+              "maxRssKb": 11416,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.042994,
+            "user": 0.042768,
+            "system": 0.0,
+            "maxRssKb": 11416
+          }
+        },
+        {
+          "name": "--parallel=2",
+          "trials": [
+            {
+              "elapsed": 0.042979,
+              "user": 0.042676,
+              "system": 0.0,
+              "maxRssKb": 11412,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.042217,
+              "user": 0.038111,
+              "system": 0.003812,
+              "maxRssKb": 11388,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.044141,
+              "user": 0.039882,
+              "system": 0.003988,
+              "maxRssKb": 11396,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.043142,
+              "user": 0.042938,
+              "system": 0.0,
+              "maxRssKb": 11408,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.045677,
+              "user": 0.041241,
+              "system": 0.004124,
+              "maxRssKb": 11416,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.043142,
+            "user": 0.041241,
+            "system": 0.003812,
+            "maxRssKb": 11408
+          }
+        }
+      ],
+      "note": "Medians on this run: --parallel=1 median 0.0430s, --parallel=2 median 0.0431s. The gap between the fastest and slowest median is 0.0001s, which is within the widest trial spread (0.0044s). This run does not separate the variants. It is not evidence that one form is generally faster. The manual says --parallel defaults to the number of available processors, capped at 8, and that more threads raise memory use by a factor of log N. These trials stop at 2 threads on purpose. They are not a tuning recommendation."
+    },
+    {
+      "id": "sort-buffer",
+      "title": "sort -S 1M and -S 32M",
+      "question": "Does a larger initial buffer change the median on a roughly 4 MiB text file?",
+      "input": "160000 short lines, seed 20261108, LC_ALL=C, -T set to the work directory, 5 trials.",
+      "variants": [
+        {
+          "name": "-S 1M",
+          "trials": [
+            {
+              "elapsed": 0.044677,
+              "user": 0.036342,
+              "system": 0.008076,
+              "maxRssKb": 11384,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.043831,
+              "user": 0.031674,
+              "system": 0.011867,
+              "maxRssKb": 11420,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.048572,
+              "user": 0.044335,
+              "system": 0.00403,
+              "maxRssKb": 11384,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.046184,
+              "user": 0.029111,
+              "system": 0.016671,
+              "maxRssKb": 11428,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.043308,
+              "user": 0.04301,
+              "system": 0.0,
+              "maxRssKb": 11412,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.044677,
+            "user": 0.036342,
+            "system": 0.008076,
+            "maxRssKb": 11412
+          }
+        },
+        {
+          "name": "-S 32M",
+          "trials": [
+            {
+              "elapsed": 0.033464,
+              "user": 0.0506,
+              "system": 0.004219,
+              "maxRssKb": 16280,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.026136,
+              "user": 0.033523,
+              "system": 0.006704,
+              "maxRssKb": 16408,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.031499,
+              "user": 0.046357,
+              "system": 0.003565,
+              "maxRssKb": 16408,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.028642,
+              "user": 0.033938,
+              "system": 0.007541,
+              "maxRssKb": 16408,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.027129,
+              "user": 0.033739,
+              "system": 0.007497,
+              "maxRssKb": 16276,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.028642,
+            "user": 0.033938,
+            "system": 0.006704,
+            "maxRssKb": 16408
+          }
+        }
+      ],
+      "note": "Medians on this run: -S 32M median 0.0286s, -S 1M median 0.0447s. The gap is 0.0160s and the widest trial spread is 0.0073s, so the medians are farther apart than the scatter of this sample. That is evidence about this input, this warm cache, and this machine. It is not a universal ranking and it says nothing about cold disk or a different filesystem. The manual says -S sets the initial main-memory buffer. A bare number is in 1024-byte units; M multiplies by 1,048,576. The buffer can still grow to hold a longer line. Temporary files, when needed, go to -T. This run does not count those files after the fact because sort removes them."
+    },
+    {
+      "id": "checksums",
+      "title": "md5sum, sha256sum, and b2sum on 8 MiB",
+      "question": "What do the medians look like for three different digests of the same warm file?",
+      "input": "8388608 deterministic bytes, seed 20261108 mixed into the generator, 5 trials.",
+      "variants": [
+        {
+          "name": "md5sum",
+          "trials": [
+            {
+              "elapsed": 0.016256,
+              "user": 0.003964,
+              "system": 0.011892,
+              "maxRssKb": 11912,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.01379,
+              "user": 0.004544,
+              "system": 0.009089,
+              "maxRssKb": 11736,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.013115,
+              "user": 0.012914,
+              "system": 0.0,
+              "maxRssKb": 11848,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.013986,
+              "user": 0.004609,
+              "system": 0.009218,
+              "maxRssKb": 11848,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.013666,
+              "user": 0.013489,
+              "system": 0.0,
+              "maxRssKb": 11608,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.01379,
+            "user": 0.004609,
+            "system": 0.009089,
+            "maxRssKb": 11848
+          }
+        },
+        {
+          "name": "sha256sum",
+          "trials": [
+            {
+              "elapsed": 0.007275,
+              "user": 0.007106,
+              "system": 0.0,
+              "maxRssKb": 11848,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.006727,
+              "user": 0.006303,
+              "system": 0.0,
+              "maxRssKb": 11912,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.006672,
+              "user": 0.006519,
+              "system": 0.0,
+              "maxRssKb": 11692,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.006476,
+              "user": 0.006219,
+              "system": 0.0,
+              "maxRssKb": 11712,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.0067,
+              "user": 0.006325,
+              "system": 0.0,
+              "maxRssKb": 11592,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.0067,
+            "user": 0.006325,
+            "system": 0.0,
+            "maxRssKb": 11712
+          }
+        },
+        {
+          "name": "b2sum",
+          "trials": [
+            {
+              "elapsed": 0.009952,
+              "user": 0.009656,
+              "system": 0.0,
+              "maxRssKb": 11704,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.009943,
+              "user": 0.009616,
+              "system": 0.0,
+              "maxRssKb": 11732,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.010687,
+              "user": 0.01053,
+              "system": 0.0,
+              "maxRssKb": 11856,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.014531,
+              "user": 0.014234,
+              "system": 0.0,
+              "maxRssKb": 11736,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.009603,
+              "user": 0.009435,
+              "system": 0.0,
+              "maxRssKb": 11852,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.009952,
+            "user": 0.009656,
+            "system": 0.0,
+            "maxRssKb": 11736
+          }
+        }
+      ],
+      "note": "Medians on this run: sha256sum median 0.0067s, b2sum median 0.0100s, md5sum median 0.0138s. The gap is 0.0071s and the widest trial spread is 0.0049s, so the medians are farther apart than the scatter of this sample. That is evidence about this input, this warm cache, and this machine. It is not a universal ranking and it says nothing about cold disk or a different filesystem. These functions do different work. A lower median is not a reason to prefer that digest for integrity. md5sum is not a collision-resistant choice for new manifests. sha256sum is the usual download check. b2sum is BLAKE2b."
+    },
+    {
+      "id": "wc",
+      "title": "wc -c, wc -l, and wc -m",
+      "question": "On a warm ASCII file, do byte, line, and character counts separate?",
+      "input": "200000 identical ASCII lines, seed constant 20261108 is not used to vary bytes, 5 trials.",
+      "variants": [
+        {
+          "name": "wc -c",
+          "trials": [
+            {
+              "elapsed": 0.001038,
+              "user": 0.0,
+              "system": 0.000705,
+              "maxRssKb": 11820,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000907,
+              "user": 0.000647,
+              "system": 0.0,
+              "maxRssKb": 11712,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000894,
+              "user": 0.000593,
+              "system": 0.0,
+              "maxRssKb": 11732,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000994,
+              "user": 0.000576,
+              "system": 0.0,
+              "maxRssKb": 11820,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000745,
+              "user": 0.000573,
+              "system": 0.0,
+              "maxRssKb": 11732,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.000907,
+            "user": 0.000576,
+            "system": 0.0,
+            "maxRssKb": 11732
+          }
+        },
+        {
+          "name": "wc -l",
+          "trials": [
+            {
+              "elapsed": 0.001717,
+              "user": 0.001463,
+              "system": 0.0,
+              "maxRssKb": 11704,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.001722,
+              "user": 0.0,
+              "system": 0.001423,
+              "maxRssKb": 11912,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.001471,
+              "user": 0.001302,
+              "system": 0.0,
+              "maxRssKb": 11856,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.001719,
+              "user": 0.0,
+              "system": 0.001482,
+              "maxRssKb": 11856,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.001503,
+              "user": 0.001244,
+              "system": 0.0,
+              "maxRssKb": 11720,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.001717,
+            "user": 0.001244,
+            "system": 0.0,
+            "maxRssKb": 11856
+          }
+        },
+        {
+          "name": "wc -m",
+          "trials": [
+            {
+              "elapsed": 0.014434,
+              "user": 0.014237,
+              "system": 0.0,
+              "maxRssKb": 11732,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.01411,
+              "user": 0.010354,
+              "system": 0.003451,
+              "maxRssKb": 11848,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.013955,
+              "user": 0.01379,
+              "system": 0.0,
+              "maxRssKb": 11856,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.01403,
+              "user": 0.013868,
+              "system": 0.0,
+              "maxRssKb": 11736,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.014084,
+              "user": 0.013793,
+              "system": 0.0,
+              "maxRssKb": 11784,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.014084,
+            "user": 0.013793,
+            "system": 0.0,
+            "maxRssKb": 11784
+          }
+        }
+      ],
+      "note": "Medians on this run: wc -c median 0.0009s, wc -l median 0.0017s, wc -m median 0.0141s. The gap is 0.0132s and the widest trial spread is 0.0005s, so the medians are farther apart than the scatter of this sample. That is evidence about this input, this warm cache, and this machine. It is not a universal ranking and it says nothing about cold disk or a different filesystem. This file is ASCII, so character and byte counts are the same quantity, but -m still walks the multibyte rules. If the medians do not separate, that is the result: do not invent a winner. A file full of non-ASCII would be a different experiment."
+    },
+    {
+      "id": "copy",
+      "title": "cp and dd on an 8 MiB warm file",
+      "question": "How do a normal cp and a fixed-block dd compare when the source is already cached?",
+      "input": "8388608 bytes, seed 20261108, 5 trials, reflink disabled.",
+      "variants": [
+        {
+          "name": "cp",
+          "trials": [
+            {
+              "elapsed": 0.006782,
+              "user": 0.0,
+              "system": 0.006588,
+              "maxRssKb": 11848,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.018063,
+              "user": 0.0,
+              "system": 0.007537,
+              "maxRssKb": 11692,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.012527,
+              "user": 0.0,
+              "system": 0.005863,
+              "maxRssKb": 11852,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.01604,
+              "user": 0.0,
+              "system": 0.005855,
+              "maxRssKb": 11844,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.011586,
+              "user": 0.0,
+              "system": 0.005149,
+              "maxRssKb": 11728,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.012527,
+            "user": 0.0,
+            "system": 0.005863,
+            "maxRssKb": 11844
+          }
+        },
+        {
+          "name": "dd",
+          "trials": [
+            {
+              "elapsed": 0.004208,
+              "user": 0.0,
+              "system": 0.003923,
+              "maxRssKb": 11848,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.017361,
+              "user": 0.0,
+              "system": 0.006246,
+              "maxRssKb": 11856,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.015547,
+              "user": 0.0,
+              "system": 0.005582,
+              "maxRssKb": 11844,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.013998,
+              "user": 0.0,
+              "system": 0.005302,
+              "maxRssKb": 11844,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.013958,
+              "user": 0.0,
+              "system": 0.006645,
+              "maxRssKb": 11704,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.013998,
+            "user": 0.0,
+            "system": 0.005582,
+            "maxRssKb": 11844
+          }
+        }
+      ],
+      "note": "Medians on this run: cp median 0.0125s, dd median 0.0140s. The gap between the fastest and slowest median is 0.0015s, which is within the widest trial spread (0.0132s). This run does not separate the variants. It is not evidence that one form is generally faster. cp --reflink=never forces a normal copy on this host, where reflink clones are not supported. dd uses a 64 KiB block size and status=none. Both read a file that was just written, so the page cache is warm. A faster median is not a reason to replace one tool with the other."
+    },
+    {
+      "id": "buffering",
+      "title": "Line buffering changes time-to-first-byte",
+      "question": "When a small C program writes lines with printf and sleeps between them, how soon does the first byte reach a pipe?",
+      "input": "stdio_lines.c, 4 lines, 100ms sleep, 5 trials. User/system/RSS are not collected for this latency probe (recorded as 0). Seed field is unused (20261108).",
+      "variants": [
+        {
+          "name": "stdio default",
+          "trials": [
+            {
+              "elapsed": 0.4015629020000233,
+              "user": 0.0,
+              "system": 0.0,
+              "maxRssKb": 0,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.40146761400001196,
+              "user": 0.0,
+              "system": 0.0,
+              "maxRssKb": 0,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.4013836269996318,
+              "user": 0.0,
+              "system": 0.0,
+              "maxRssKb": 0,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.4012151699998867,
+              "user": 0.0,
+              "system": 0.0,
+              "maxRssKb": 0,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.40127705200029595,
+              "user": 0.0,
+              "system": 0.0,
+              "maxRssKb": 0,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.4013836269996318,
+            "user": 0.0,
+            "system": 0.0,
+            "maxRssKb": 0
+          }
+        },
+        {
+          "name": "stdbuf -oL",
+          "trials": [
+            {
+              "elapsed": 0.0015025249999780499,
+              "user": 0.0,
+              "system": 0.0,
+              "maxRssKb": 0,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.0012057599997206125,
+              "user": 0.0,
+              "system": 0.0,
+              "maxRssKb": 0,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.001050461999966501,
+              "user": 0.0,
+              "system": 0.0,
+              "maxRssKb": 0,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.001090812999791524,
+              "user": 0.0,
+              "system": 0.0,
+              "maxRssKb": 0,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.0014405169999918144,
+              "user": 0.0,
+              "system": 0.0,
+              "maxRssKb": 0,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.0012057599997206125,
+            "user": 0.0,
+            "system": 0.0,
+            "maxRssKb": 0
+          }
+        }
+      ],
+      "note": "Medians on this run: stdbuf -oL median 0.0012s, stdio default median 0.4014s. The gap is 0.4002s and the widest trial spread is 0.0005s, so the medians are farther apart than the scatter of this sample. That is evidence about this input, this warm cache, and this machine. It is not a universal ranking and it says nothing about cold disk or a different filesystem. The program is a harness, not cat or dd. The coreutils manual says those two do not use C FILE streams, so stdbuf does not apply to them. This measurement is about FILE buffering on a pipe."
+    }
+  ]
+}
