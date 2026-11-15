@@ -90,6 +90,14 @@ export function ExerciseCard({ exercise }: { exercise: CapturedExercise }) {
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{exercise.hint}</ReactMarkdown>
         </div>
       </details>
+      {exercise.hint2 ? (
+        <details className="mt-2 rounded-md border border-[var(--line)] px-3 py-2">
+          <summary className="cursor-pointer text-sm font-medium">Hint 2</summary>
+          <div className="prose-course mt-2 text-sm">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{exercise.hint2}</ReactMarkdown>
+          </div>
+        </details>
+      ) : null}
       <details className="mt-2 rounded-md border border-[var(--line)] px-3 py-2">
         <summary className="cursor-pointer text-sm font-medium">Full solution</summary>
         <div className="prose-course mt-2 text-sm">
@@ -127,11 +135,19 @@ function parsePayload<T>(raw: string): T | null {
 export function MarkdownView({ markdown }: { markdown: string }) {
   const components: Components = {
     a({ href, children }) {
-      if (href && href.startsWith("/")) {
+      const asset = Boolean(href && /\.(sh|py|c|json|zip|txt)$/.test(href.split("?")[0]));
+      if (href && href.startsWith("/") && !asset) {
         return (
           <Link href={href} className="text-[var(--accent)] underline underline-offset-2">
             {children}
           </Link>
+        );
+      }
+      if (href && href.startsWith("/")) {
+        return (
+          <a href={withBase(href)} className="text-[var(--accent)] underline underline-offset-2">
+            {children}
+          </a>
         );
       }
       return (

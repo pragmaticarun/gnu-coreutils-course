@@ -11,13 +11,14 @@ Capture host, as recorded by the generator: `Linux 6.12.113+ x86_64`, locale `en
 | | |
 | --- | ---: |
 | Lessons | 41 |
-| Captured lesson examples | 167 |
-| Lesson exercises with solutions | 123 |
-| Cookbook recipes | 16 |
-| Cookbook examples | 32 |
-| Reference entries | 104 |
-| Lesson prose | 30,677 words |
-| Cookbook prose | 5,460 words |
+| Captured lesson examples | 172 |
+| Lesson exercises with solutions | 128 |
+| Cookbook recipes | 19 |
+| Cookbook examples | 38 |
+| Cookbook exercises | 22 |
+| Reference entries | 105 |
+| Lesson prose | 31,201 words |
+| Cookbook prose | 6,531 words |
 
 Companions, checked as `/usr/bin/<name>` so a shell builtin cannot impersonate them:
 
@@ -76,6 +77,18 @@ Seed `20261108`, 5 trials, median, warm page cache, no root, no `drop_caches`. E
 
 Scripts live in `benchmarks/` and are copied to `public/downloads/benchmarks/`.
 
+### Supplement run, kept separate
+
+`python3 benchmarks/measure_supplements.py` writes `public/benchmarks/supplements.json`. It does not rewrite `sample-run.json`. Same harness style: 5 trials, median, warm cache, no root, no `drop_caches`, elapsed time includes the Python starter. The disclosure in that file is the one that applies. These medians are not predictions, and they are not part of the table above.
+
+| Question | What the supplement file recorded |
+| --- | --- |
+| `wc -c` versus `cat \| cat \| cat \| wc -c`, 8 MiB of zeros | `wc -c` median 0.0008s, pipeline median 0.0054s. Gap 0.0046s, widest spread 0.0014s. |
+| One `/usr/bin/true` versus 400 sequential execs | one call median 0.0008s, 400 calls median 0.1740s. Gap 0.1731s, widest spread 0.0095s. |
+| `cp --sparse=always` versus `--sparse=never` on an 8 MiB hole | always median 0.0010s, never median 0.0135s. Gap 0.0126s, widest spread 0.0115s. Untimed `du -B1` was 0 bytes and 8388608 bytes. |
+
+Scenario checks that refuse to run as root live in `public/sandbox/`. `npm test` runs `scripts/validate_content.py`, which executes those scripts and checks the supplement disclaimer.
+
 ## GitHub Pages
 
 The workflow is `.github/workflows/pages.yml`. It checks out the repo, installs Node 22, runs `npm ci` and `npm run build`, and deploys `out/` with the official Pages actions. It does **not** re-run the sandbox. Re-running the examples on a GitHub-hosted runner would replace captured stdout (processor count, filesystem, username) with that runner's output and could contradict the lesson text.
@@ -89,25 +102,16 @@ Base path, chosen at build time via `NEXT_PUBLIC_BASE_PATH`:
 
 `next.config.ts` sets `basePath` and `assetPrefix` from that value, and turns `/` into an empty path. A local check with `NEXT_PUBLIC_BASE_PATH=/coreutils-workbench` produced `href="/coreutils-workbench/lessons/orientation/"` and `/coreutils-workbench/_next/...` asset URLs. Next's `Link` and the `withBase()` helper both honor the prefix. The default build in this tree uses an empty base path.
 
-This environment has no GitHub login (`gh` is not authenticated, and `GITHUB_TOKEN` / `GH_TOKEN` are unset). The course is not on GitHub Pages. No URL is claimed. Publishing needs a person who can create a repository:
-
-1. Create a new **public** GitHub repository used only for this course. Do not push onto an unrelated repository.
-2. Authenticate the GitHub CLI or git (`gh auth login`, or a personal access token that can push and enable Pages).
-3. Add that repository as a remote and push the `main` branch.
-4. In the repository settings, open **Pages** and set the source to **GitHub Actions**.
-5. Run the "Deploy course to GitHub Pages" workflow if it did not start from the push. The first run may ask you to approve the `github-pages` environment.
-6. The live URL is the `page_url` output of the deploy job after it succeeds. Use that value. Do not invent `https://<owner>.github.io/<repo>/` until the job prints it.
+The published site is [https://pragmaticarun.github.io/gnu-coreutils-course/](https://pragmaticarun.github.io/gnu-coreutils-course/). Pushes to `main` run the Pages workflow, which builds with base path `/gnu-coreutils-course`. A local build leaves `NEXT_PUBLIC_BASE_PATH` unset, so `out/` is served at `/`.
 
 If the site should live at the root of a custom domain, set the repository variable `BASE_PATH` to `/` and configure the domain in Pages. Push again so the site rebuilds with the new prefix.
-
-The Origin draft for this project was not made public. That visibility approval is separate from GitHub Pages.
 
 ## Limits
 
 - No example targeted `/`, a block device, or another user's files. `rm --preserve-root` was not disabled.
 - Caches were not dropped. No sysctl. Benchmarks are warm-cache numbers.
 - `cp --reflink=always` fails here with "Operation not supported". `--reflink=auto` copies.
-- `chown` to another user, `chroot`, device `mknod`, and SELinux changes are not available. `id -Z` and `runcon` fail because SELinux is off. `stty` was not pointed at a terminal.
+- `chown` to another user, device `mknod`, and SELinux changes are not available. `/usr/sbin/chroot` is installed and is coreutils, but no example calls it to change the root directory. `id -Z` and `runcon` fail because SELinux is off. `stty` was not pointed at a terminal.
 - `shred -u -n 1` removes a scratch name. It does not prove bytes are gone from an SSD, a journal, or a snapshot.
 - `sort -u` and `sort | uniq` differ when the key is narrower than the line. `cut` does not parse CSV quotes.
 - `stdbuf` does not change `cat` or `dd`, which do not use stdio for their data.

@@ -103,9 +103,17 @@ def parse_run(text: str) -> tuple[dict, str]:
 
 
 def parse_exercise(text: str) -> dict:
-    parts = re.split(r"(?m)^---(title|prompt|hint|solution|script)---\s*$", text)
+    parts = re.split(r"(?m)^---(title|prompt|hint|hint2|solution|script)---\s*$", text)
     # parts[0] is preamble with expect-exit
-    data = {"expect": 0, "title": "", "prompt": "", "hint": "", "solution": "", "script": ""}
+    data = {
+        "expect": 0,
+        "title": "",
+        "prompt": "",
+        "hint": "",
+        "hint2": "",
+        "solution": "",
+        "script": "",
+    }
     preamble = parts[0]
     match = re.search(r"(?m)^expect-exit:\s*(\d+)\s*$", preamble)
     if match:
@@ -125,11 +133,14 @@ def run_script(script: str, env_extra: dict, timeout: int) -> tuple[str, str, in
         "mkfs",
         "of=/dev/sd",
         "of=/dev/nvme",
+        "of=/dev/loop",
         "rm -rf /",
         "rm -rf -- /",
         ":(){",
         "shutdown",
         "reboot",
+        "sudo ",
+        "sysctl",
     ]
     for item in banned:
         if item in script:
@@ -240,6 +251,7 @@ def load_document(path: Path, kind: str) -> dict:
                 "title": info["title"],
                 "prompt": info["prompt"].strip(),
                 "hint": info["hint"].strip(),
+                "hint2": info["hint2"].strip(),
                 "solution": info["solution"].strip(),
                 "script": info["script"].strip() + "\n",
                 "stdout": stdout,
@@ -309,6 +321,10 @@ def write_download(url_path: str, slug: str, script: str, expect: int) -> None:
         # Example from the GNU Coreutils Workbench ({slug}).
         # Re-run inside a scratch directory. Captured against GNU coreutils 9.4.
         {strict}
+        if [ "$(id -u)" -eq 0 ]; then
+          printf 'Refusing to run as root.\\n' >&2
+          exit 1
+        fi
         cd "$(mktemp -d)"
         """
     )
@@ -320,7 +336,8 @@ def reference_entries() -> list[dict]:
     notes = json.loads(NOTES.read_text())
     paths = []
     for line in subprocess.check_output(["dpkg", "-L", "coreutils"], text=True).splitlines():
-        if "/bin/" in line and not line.endswith(".textutils"):
+        # /usr/sbin/chroot is coreutils. A /bin/-only scan drops it.
+        if ("/bin/" in line or "/sbin/" in line) and not line.endswith(".textutils"):
             paths.append(line)
     seen = set()
     entries = []
@@ -526,31 +543,73 @@ def copy_benchmarks() -> None:
             shutil.copy2(path, dest / path.name)
 
 
+def source_for(slug: str) -> tuple[Path, str]:
+    for directory, kind in ((LESSONS, "lesson"), (COOKBOOK, "cookbook")):
+        for path in sorted(directory.glob("*.md")):
+            meta, _body = parse_frontmatter(path.read_text())
+            if meta.get("slug") == slug:
+                return path, kind
+    fail(f"no lesson or cookbook with slug {slug}")
+    raise AssertionError
+
+
+def replace_document(rows: list[dict], document: dict) -> list[dict]:
+    kept = [row for row in rows if row["slug"] != document["slug"]]
+    kept.append(document)
+    kept.sort(key=lambda item: item["number"])
+    return kept
+
+
 def main() -> None:
     skip_benches = "--skip-benches" in sys.argv
-    if PUBLIC.joinpath("downloads", "examples").exists():
-        shutil.rmtree(PUBLIC / "downloads" / "examples")
-    if PUBLIC.joinpath("downloads", "solutions").exists():
-        shutil.rmtree(PUBLIC / "downloads" / "solutions")
-    lessons = []
-    for path in sorted(LESSONS.glob("*.md")):
-        print(f"lesson {path.name}", flush=True)
-        lessons.append(load_document(path, "lesson"))
-    cookbook = []
-    for path in sorted(COOKBOOK.glob("*.md")):
-        print(f"cookbook {path.name}", flush=True)
-        cookbook.append(load_document(path, "cookbook"))
-    lessons.sort(key=lambda item: item["number"])
-    cookbook.sort(key=lambda item: item["number"])
-    if len(lessons) < 30:
-        fail(f"only {len(lessons)} lessons")
-    course = {
-        "meta": meta(),
-        "lessons": lessons,
-        "cookbook": cookbook,
-        "reference": reference_entries(),
-        "companions": companions(),
-    }
+    refresh_reference = "--refresh-reference" in sys.argv
+    only: list[str] = []
+    if "--only" in sys.argv:
+        index = sys.argv.index("--only")
+        if index + 1 >= len(sys.argv):
+            fail("--only needs a comma-separated slug list")
+        only = [item for item in sys.argv[index + 1].split(",") if item]
+        skip_benches = True
+    partial = bool(only) or refresh_reference
+    if not partial:
+        if PUBLIC.joinpath("downloads", "examples").exists():
+            shutil.rmtree(PUBLIC / "downloads" / "examples")
+        if PUBLIC.joinpath("downloads", "solutions").exists():
+            shutil.rmtree(PUBLIC / "downloads" / "solutions")
+        lessons = []
+        for path in sorted(LESSONS.glob("*.md")):
+            print(f"lesson {path.name}", flush=True)
+            lessons.append(load_document(path, "lesson"))
+        cookbook = []
+        for path in sorted(COOKBOOK.glob("*.md")):
+            print(f"cookbook {path.name}", flush=True)
+            cookbook.append(load_document(path, "cookbook"))
+        lessons.sort(key=lambda item: item["number"])
+        cookbook.sort(key=lambda item: item["number"])
+        course = {
+            "meta": meta(),
+            "lessons": lessons,
+            "cookbook": cookbook,
+            "reference": reference_entries(),
+            "companions": companions(),
+        }
+    else:
+        course_path = GENERATED / "course.json"
+        if not course_path.is_file():
+            fail("partial assemble needs content/generated/course.json")
+        course = json.loads(course_path.read_text())
+        for slug in only:
+            path, kind = source_for(slug)
+            print(f"{kind} {path.name}", flush=True)
+            document = load_document(path, kind)
+            key = "lessons" if kind == "lesson" else "cookbook"
+            course[key] = replace_document(course[key], document)
+        if refresh_reference or not only:
+            print("reference", flush=True)
+            course["reference"] = reference_entries()
+            course["companions"] = companions()
+    if len(course["lessons"]) < 30:
+        fail(f"only {len(course['lessons'])} lessons")
     GENERATED.mkdir(parents=True, exist_ok=True)
     (GENERATED / "course.json").write_text(json.dumps(course))
     (PUBLIC / "search-index.json").write_text(json.dumps(search_index(course)))
@@ -564,10 +623,14 @@ def main() -> None:
     elif not (PUBLIC / "benchmarks" / "sample-run.json").exists():
         fail("sample benchmark missing and --skip-benches was set")
     zip_examples()
+    lessons = course["lessons"]
+    cookbook = course["cookbook"]
     print(
         f"lessons={len(lessons)} cookbook={len(cookbook)} "
         f"examples={sum(len(item['examples']) for item in lessons)} "
         f"exercises={sum(len(item['exercises']) for item in lessons)} "
+        f"cookbook_examples={sum(len(item['examples']) for item in cookbook)} "
+        f"cookbook_exercises={sum(len(item['exercises']) for item in cookbook)} "
         f"reference={len(course['reference'])}"
     )
 

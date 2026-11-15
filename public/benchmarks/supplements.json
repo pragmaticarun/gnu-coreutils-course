@@ -1,0 +1,325 @@
+{
+  "disclosure": {
+    "coreutils": "ls (GNU coreutils) 9.4",
+    "package": "9.4-3ubuntu6.3",
+    "uname": "Linux 6.12.113+ x86_64",
+    "python": "3.12.3",
+    "locale": "en_US.UTF-8",
+    "filesystemDf": "ext4",
+    "filesystemStat": "ext2/ext3",
+    "seed": 20261108,
+    "trials": 5,
+    "maxRss": "Linux ru_maxrss of waited-for children, kibibytes",
+    "warmCache": "Inputs are created in this process and reread immediately. Caches are not dropped. This is not a cold-disk measurement and not a ranking that transfers to another machine.",
+    "noRoot": true,
+    "noDropCaches": true,
+    "helper": "Most elapsed times include a short Python process that starts the command and waits. Compare variants with each other. Do not treat the absolute seconds as a shell-only measurement.",
+    "separateFromSampleRun": true,
+    "disclaimer": "Warm-cache timings from this machine only. Each trial includes a short Python process that starts the command. Caches were not dropped. No root, no sysctl, no drop_caches. These numbers do not predict another computer, a cold cache, or a different coreutils build. Do not compare a median here with a median in sample-run.json as if they were one experiment; that file is an earlier run of a different script list."
+  },
+  "benches": [
+    {
+      "id": "pipeline-overhead",
+      "title": "Extra cat processes in front of wc -c",
+      "question": "On one warm 8 MiB file, how does wc -c compare with the same bytes through three cats?",
+      "input": "8388608 zero bytes, seed field unused (20261108), 5 trials. Pipeline runs under bash -c.",
+      "variants": [
+        {
+          "name": "wc -c file",
+          "trials": [
+            {
+              "elapsed": 0.00078,
+              "user": 0.000647,
+              "system": 0.0,
+              "maxRssKb": 11776,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000506,
+              "user": 0.000396,
+              "system": 0.0,
+              "maxRssKb": 11776,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000879,
+              "user": 0.000572,
+              "system": 0.0,
+              "maxRssKb": 11764,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000685,
+              "user": 0.000578,
+              "system": 0.0,
+              "maxRssKb": 11788,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.001165,
+              "user": 0.000564,
+              "system": 0.0,
+              "maxRssKb": 11796,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.00078,
+            "user": 0.000572,
+            "system": 0.0,
+            "maxRssKb": 11776
+          }
+        },
+        {
+          "name": "cat | cat | cat | wc -c",
+          "trials": [
+            {
+              "elapsed": 0.006419,
+              "user": 0.004118,
+              "system": 0.006966,
+              "maxRssKb": 11788,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.005918,
+              "user": 0.005287,
+              "system": 0.005702,
+              "maxRssKb": 11776,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.005394,
+              "user": 0.007989,
+              "system": 0.003053,
+              "maxRssKb": 11752,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.005176,
+              "user": 0.009424,
+              "system": 0.0,
+              "maxRssKb": 11780,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.005059,
+              "user": 0.008485,
+              "system": 0.001013,
+              "maxRssKb": 11776,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.005394,
+            "user": 0.007989,
+            "system": 0.003053,
+            "maxRssKb": 11776
+          }
+        }
+      ],
+      "note": "Medians on this run: wc -c file median 0.0008s, cat | cat | cat | wc -c median 0.0054s. The gap is 0.0046s and the widest trial spread is 0.0014s, so the medians are farther apart than the scatter of this sample. That is evidence about this input, this warm cache, and this machine. It is not a universal ranking and it says nothing about cold disk or a different filesystem. Both commands read the same 8388608 zero bytes that were just written, so the page cache is warm. The pipeline is a bash command and adds three cat processes. The harness discards stdout. This is process overhead on this input, not a reason to avoid a pipeline that filters, and not a prediction for another machine."
+    },
+    {
+      "id": "process-startup",
+      "title": "Process startup against /usr/bin/true",
+      "question": "What does a loop of 400 trivial coreutils processes cost next to one exec, on this host?",
+      "input": "5 trials. The loop is bash -c. No input file.",
+      "variants": [
+        {
+          "name": "one /usr/bin/true",
+          "trials": [
+            {
+              "elapsed": 0.000829,
+              "user": 0.000473,
+              "system": 0.0,
+              "maxRssKb": 11780,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000549,
+              "user": 0.000466,
+              "system": 0.0,
+              "maxRssKb": 11780,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000861,
+              "user": 0.0,
+              "system": 0.000532,
+              "maxRssKb": 11772,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000901,
+              "user": 0.000542,
+              "system": 0.0,
+              "maxRssKb": 11792,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000629,
+              "user": 0.000549,
+              "system": 0.0,
+              "maxRssKb": 11776,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.000829,
+            "user": 0.000473,
+            "system": 0.0,
+            "maxRssKb": 11780
+          }
+        },
+        {
+          "name": "400 x /usr/bin/true",
+          "trials": [
+            {
+              "elapsed": 0.180865,
+              "user": 0.148546,
+              "system": 0.040339,
+              "maxRssKb": 11796,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.172832,
+              "user": 0.150517,
+              "system": 0.033009,
+              "maxRssKb": 11792,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.171396,
+              "user": 0.149767,
+              "system": 0.031943,
+              "maxRssKb": 11748,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.179377,
+              "user": 0.147331,
+              "system": 0.043527,
+              "maxRssKb": 11788,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.173961,
+              "user": 0.143446,
+              "system": 0.037728,
+              "maxRssKb": 11788,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.173961,
+            "user": 0.148546,
+            "system": 0.037728,
+            "maxRssKb": 11788
+          }
+        }
+      ],
+      "note": "Medians on this run: one /usr/bin/true median 0.0008s, 400 x /usr/bin/true median 0.1740s. The gap is 0.1731s and the widest trial spread is 0.0095s, so the medians are farther apart than the scatter of this sample. That is evidence about this input, this warm cache, and this machine. It is not a universal ranking and it says nothing about cold disk or a different filesystem. true does no file IO. The 400-call sample is one bash -c loop of /usr/bin/true, not the shell builtin. Elapsed time includes this Python harness. The gap is process startup on this machine. It is not a prediction, and the unused seed is 20261108."
+    },
+    {
+      "id": "sparse-copy",
+      "title": "Copying an 8 MiB hole with and without the hole",
+      "question": "On this filesystem, how do cp --sparse=always and cp --sparse=never compare for one hole?",
+      "input": "truncate -s 8M, 5 trials, destination overwritten in the work directory. Untimed du -B1: always=0, never=8388608.",
+      "variants": [
+        {
+          "name": "cp --sparse=always",
+          "trials": [
+            {
+              "elapsed": 0.001094,
+              "user": 0.000814,
+              "system": 0.0,
+              "maxRssKb": 11780,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000822,
+              "user": 0.0,
+              "system": 0.000714,
+              "maxRssKb": 11780,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000964,
+              "user": 0.000697,
+              "system": 0.0,
+              "maxRssKb": 11796,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000967,
+              "user": 0.00071,
+              "system": 0.0,
+              "maxRssKb": 11776,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.001012,
+              "user": 0.000737,
+              "system": 0.0,
+              "maxRssKb": 11796,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.000967,
+            "user": 0.00071,
+            "system": 0.0,
+            "maxRssKb": 11780
+          }
+        },
+        {
+          "name": "cp --sparse=never",
+          "trials": [
+            {
+              "elapsed": 0.003026,
+              "user": 0.0,
+              "system": 0.002771,
+              "maxRssKb": 11776,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.013885,
+              "user": 0.002233,
+              "system": 0.002233,
+              "maxRssKb": 11752,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.014548,
+              "user": 0.0,
+              "system": 0.004692,
+              "maxRssKb": 11752,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.01353,
+              "user": 0.0,
+              "system": 0.004276,
+              "maxRssKb": 11776,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.012888,
+              "user": 0.004022,
+              "system": 0.0,
+              "maxRssKb": 11724,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.01353,
+            "user": 0.0,
+            "system": 0.002771,
+            "maxRssKb": 11752
+          }
+        }
+      ],
+      "note": "Medians on this run: cp --sparse=always median 0.0010s, cp --sparse=never median 0.0135s. The gap is 0.0126s and the widest trial spread is 0.0115s, so the medians are farther apart than the scatter of this sample. That is evidence about this input, this warm cache, and this machine. It is not a universal ranking and it says nothing about cold disk or a different filesystem. An untimed probe on the same hole reported du -B1 of 0 bytes after --sparse=always and 8388608 bytes after --sparse=never. Those are allocated sizes, not elapsed times. Apparent size is 8388608 either way. This is one ext4 host with a warm cache and an 8 MiB hole. Seed 20261108 is unused. It does not predict another filesystem."
+    }
+  ]
+}

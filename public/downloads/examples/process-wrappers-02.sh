@@ -3,10 +3,15 @@
 # Re-run inside a scratch directory. Captured against GNU coreutils 9.4.
 set -eo pipefail
 
+if [ "$(id -u)" -eq 0 ]; then
+  printf 'Refusing to run as root.\n' >&2
+  exit 1
+fi
 cd "$(mktemp -d)"
 set +e
-/usr/bin/timeout 1 /usr/bin/sleep 3
-/usr/bin/printf 'default:%s\n' $?
-/usr/bin/timeout --preserve-status 1 /usr/bin/sleep 3
-/usr/bin/printf 'preserved:%s\n' $?
+/usr/bin/env -i printf 'default-path\n'
+/usr/bin/printf 'named:%s\n' $?
+/usr/bin/env -i PATH= printf 'nope\n'
+/usr/bin/printf 'empty:%s\n' $?
 set -e
+/usr/bin/env -i PATH= /usr/bin/printf 'absolute\n'

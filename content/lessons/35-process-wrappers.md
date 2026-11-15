@@ -21,7 +21,7 @@ gnu_vs_bsd: |
   `timeout`, `stdbuf`, `nproc`, and GNU `env -C` / `-S` are GNU extensions. macOS needs Homebrew `gtimeout` and has no `stdbuf`. `nice` and `nohup` exist in both userlands, but a negative niceness adjustment needs privilege on both, and the diagnostic text differs. This lesson captured GNU coreutils 9.4. The niceness warning and the 124/143 statuses are from this host, not from a BSD run.
 ---
 
-`env` is how you exec a program with a different environment without editing the parent shell. `-C` changes the working directory for that child only. `-u NAME` removes one variable. `-i` starts from an empty environment, which is the right way to prove a build does not depend on a stray `CFLAGS` from your prompt. You must then pass `PATH` if the child needs to find binaries. `-S` splits a single argument into a command, which is useful in a shebang line and easy to quote wrong in a lesson, so the examples use `-C`, `-u`, and `-i` instead.
+`env` is how you exec a program with a different environment without editing the parent shell. `-C` changes the working directory for that child only. `-u NAME` removes one variable. `-i` starts from an empty environment, which drops a stray `CFLAGS` from your prompt. It does not by itself empty the command search path. The installed info node says the command is searched for according to `PATH`, and that behavior is not portable when `PATH` is undefined or omits directories such as `/bin`. On this GNU env, `env -i printf` still runs `/usr/bin/printf` through the default search path and exits 0. `env -i PATH=` is the empty search: `printf` is not found, status 127. An absolute path still runs when `PATH` is empty. `-S` splits a single argument into a command, which is useful in a shebang line and easy to quote wrong in a lesson, so the examples use `-C`, `-u`, and `-i` instead.
 
 `timeout` starts a command and sends it a signal when the duration elapses. The default signal is TERM. The default status, when timeout itself decides the command ran too long, is 124. `--preserve-status` makes timeout exit with the status the signal produced. On this host `timeout --preserve-status 1 sleep 3` exits 143, which is 128 plus SIGTERM (15). That distinction matters in a test harness: 124 means "the wrapper fired", and 143 means "the child died of TERM" if you asked to preserve status. A command that finishes in time returns its own status, and timeout stays out of the way.
 
@@ -31,7 +31,7 @@ gnu_vs_bsd: |
 
 `nohup` arranges for the child to ignore SIGHUP and, if stdout is a terminal, redirects it to `nohup.out`. When stdout is already redirected, `nohup` does not create that file. The example redirects to `redirected.out` and lists the directory so you can see the absence. `nohup` is not a service manager. A child that ignores hangup still dies when the machine reboots, and it still needs `timeout` if it can hang.
 
-`nproc` prints how many processors are available to the current process, after considering affinity and cgroup limits the kernel reports. `--all` prints the installed count. `--ignore=N` subtracts N, which is the usual way to leave one processor for the desktop while a compile runs. On the capture host the three numbers were 4, 4, and 3 in the order `nproc`, `nproc --all`, `nproc --ignore=1`. Your laptop can differ. Use the value as a starting `-j` for a build. It is not a measurement of memory bandwidth, and a machine with 4 processors and 2 GiB of RAM will thrash if every job is a linking C++ binary. The performance lesson and the benchmark page are where resource tradeoffs are stated with inputs attached.
+`nproc` prints how many processors are available to the current process, after considering affinity and cgroup limits the kernel reports. `--all` prints the installed count. `--ignore=N` subtracts N, which is the usual way to leave one processor for the desktop while a compile runs. On the capture host the three numbers were 4, 4, and 3 in the order `nproc`, `nproc --all`, `nproc --ignore=1`. Your laptop can differ. Use the value as a starting `-j` for a build. It is not a measurement of memory bandwidth, and a machine with 4 processors and 2 GiB of RAM will thrash if every job is a linking C++ binary. `taskset` from util-linux can shrink the affinity mask. It is not a coreutils program. On this host `nproc --all` stays 4 and `taskset -c 0 nproc` prints 1. That is the mask, not a second opinion about the hardware, and it is not a prediction for a machine whose affinity you did not set. The example is badged as util-linux. The assertion script is [sandbox/nproc-affinity.sh](/sandbox/nproc-affinity.sh). The performance lesson and the benchmark page are where resource tradeoffs are stated with inputs attached.
 
 ## Worked examples
 
@@ -45,6 +45,19 @@ set +e
 /usr/bin/printf 'home_status:%s\n' $?
 set -e
 /usr/bin/env -i PATH=/usr/bin /usr/bin/printf 'clean\n'
+```
+
+### An empty PATH is not a missing PATH
+
+```run
+# title: Default search path versus PATH=
+set +e
+/usr/bin/env -i printf 'default-path\n'
+/usr/bin/printf 'named:%s\n' $?
+/usr/bin/env -i PATH= printf 'nope\n'
+/usr/bin/printf 'empty:%s\n' $?
+set -e
+/usr/bin/env -i PATH= /usr/bin/printf 'absolute\n'
 ```
 
 ### timeout statuses
@@ -90,6 +103,15 @@ set -e
 /usr/bin/ls -l /usr/libexec/coreutils/libstdbuf.so
 ```
 
+### One CPU, by request
+
+```run
+# title: nproc follows the affinity mask
+# companion: util-linux taskset
+/usr/bin/nproc --all
+/usr/bin/taskset -c 0 /usr/bin/nproc
+```
+
 ## Recipes
 
 Wrap a flaky integration test with `timeout 30` and treat 124 as "the test hung", which is a failure, not a skip. Use `--preserve-status` only when you need to distinguish the signal the child actually died from.
@@ -106,7 +128,7 @@ Pick a build job count with `nproc --ignore=1` on a workstation and plain `nproc
 
 `nohup command &` in an interactive shell still leaves a job. Redirect stdin from `/dev/null` as well if the child might try to read a terminal that is going away.
 
-`env -i` without `PATH` cannot find `printf` by name. The example passes `PATH=/usr/bin` and an absolute `printf` so either spelling works.
+`env -i` without `PATH` is not "printf cannot be found". On this host it can. The info node warns that an undefined `PATH` is not portable. The empty assignment `PATH=` is the form that fails the name lookup. The worked example records status 0 for the default search, status 127 for `PATH=`, and status 0 for an absolute path under `PATH=`. The assertion script is [sandbox/env-empty-path.sh](/sandbox/env-empty-path.sh).
 
 ## Exercises
 
@@ -150,6 +172,44 @@ Status 125 is the stdbuf usage error.
 stderr says line buffering stdin is meaningless.
 ---script---
 /usr/bin/stdbuf -iL /usr/bin/true
+```
+
+```exercise
+expect-exit: 0
+---title---
+Separate a missing PATH from an empty PATH
+---prompt---
+Run `env -i printf` and `env -i PATH= printf`. Print both statuses. The script should exit 0.
+---hint---
+Turn off `set -e` before the command you expect to fail, or the script stops at status 127.
+---hint2---
+The info node says search uses `PATH`, and that an undefined `PATH` is not portable. On this GNU env the undefined case still finds `printf`. The empty `PATH=` does not.
+---solution---
+`env -i printf` exits 0. `env -i PATH= printf` exits 127 and writes a "No such file or directory" diagnostic. Those are different requests.
+---script---
+set +e
+/usr/bin/env -i printf 'ok\n'
+/usr/bin/printf 'named:%s\n' $?
+/usr/bin/env -i PATH= printf 'nope\n'
+/usr/bin/printf 'empty:%s\n' $?
+set -e
+```
+
+```exercise
+expect-exit: 0
+---title---
+Ask nproc inside a one-CPU mask
+---prompt---
+Print `nproc --all` and then `nproc` under `taskset -c 0`.
+---hint---
+`taskset` is util-linux, not coreutils. The coreutils program is `nproc`.
+---hint2---
+`--all` ignores the affinity mask. Plain `nproc` does not. The second number is the mask you just set, not a hardware inventory.
+---solution---
+On this host `--all` prints 4 and the masked `nproc` prints 1. A different machine can have a different installed count. The point is that the two questions disagree once the mask is narrower than the machine.
+---script---
+/usr/bin/nproc --all
+/usr/bin/taskset -c 0 /usr/bin/nproc
 ```
 
 ## Performance

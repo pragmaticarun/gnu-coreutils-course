@@ -21,7 +21,7 @@ gnu_vs_bsd: |
 
 A directory's own `stat` size is not the tree. The directories lesson showed a directory size that ignored `hello\n` inside. `du -s` is the sum. `-d 1` limits depth so you see children without the whole walk printed. `--exclude` skips a pattern. `-x` stays on one filesystem, which matters when a tree contains another mount. Hard links are counted once unless `-l` / `--count-links` is set. Two names for one inode are not two copies of the bytes. The links lesson created the inode; this lesson is where the accounting shows up.
 
-`df` does not walk your tree. It calls the filesystem for free space and inode counts. A deleted file that is still open does not appear in `du` of the directory and still occupies space in `df` until the last descriptor closes. That is the resolution of "du says I freed it and df disagrees". `df -h` is human units. `df -i` is inodes. Running out of inodes looks like a full disk and is not fixed by deleting one large file.
+`df` does not walk your tree. It calls the filesystem for free space and inode counts. A deleted file that is still open does not appear in `du` of the directory and still occupies space until the last descriptor closes. That is the resolution of "du says I freed it and df disagrees". A 4 KiB file is smaller than `df`'s usual granularity, so the worked example does not subtract two `df` totals and call the difference a proof. It unlinks the name, checks the name is gone, and reads the size of the still-open descriptor through `/proc`. Finding which process holds the descriptor is `lsof` or a walk of `/proc`, which are not coreutils. The assertion script is [sandbox/deleted-still-open.sh](/sandbox/deleted-still-open.sh). `df -h` is human units. `df -i` is inodes. Running out of inodes looks like a full disk and is not fixed by deleting one large file.
 
 `df --output=source,fstype,target` prints the type without `-T`. Combining `-T` and `--output` is an error on this GNU df. `stat -f -c '%T'` on the same directory can print `ext2/ext3` while df prints `ext4`, because the kernel statfs magic is shared. Trust df's fstype column for the name a person means. Trust statfs numbers for block size. The method page records both strings from the capture host.
 
@@ -64,6 +64,23 @@ A directory's own `stat` size is not the tree. The directories lesson showed a d
 # title: df --output and stat -f
 /usr/bin/df --output=source,fstype,target .
 /usr/bin/stat -f -c '%T' .
+```
+
+### The name is gone and the descriptor is not
+
+```run
+# title: Unlink a file that this shell still has open
+/usr/bin/dd if=/dev/zero of=hold.bin bs=4096 count=1 status=none
+exec 9<>hold.bin
+/usr/bin/rm -f hold.bin
+if [ -e hold.bin ]; then
+  /usr/bin/printf 'name_still_there\n'
+  exit 1
+fi
+/usr/bin/printf 'name_gone\n'
+/usr/bin/stat -L -c 'fd_size=%s' /proc/$$/fd/9
+/usr/bin/wc -c < /proc/$$/fd/9
+exec 9>&-
 ```
 
 ## Recipes
@@ -126,6 +143,26 @@ Do not combine --output with -T.
 The fstype column is the name to quote when you describe the disk. stat -f may use a coarser type code.
 ---script---
 /usr/bin/df --output=source,fstype,target .
+```
+
+```exercise
+expect-exit: 0
+---title---
+Prove the bytes outlived the name
+---prompt---
+Create a 4096-byte file, hold it open on file descriptor 9, unlink the name, and print the size `stat` still sees on that descriptor.
+---hint---
+`exec 9<>hold.bin` keeps the descriptor in this shell. `rm -f` removes the directory entry only.
+---hint2---
+`stat -L -c %s /proc/$$/fd/9` follows the descriptor. `df` will not show a 4 KiB change reliably, so do not use a `df` delta as the proof.
+---solution---
+The name is gone. `stat` reports `fd_size=4096`. The blocks stay allocated until the descriptor closes.
+---script---
+/usr/bin/dd if=/dev/zero of=hold.bin bs=4096 count=1 status=none
+exec 9<>hold.bin
+/usr/bin/rm -f hold.bin
+/usr/bin/stat -L -c 'fd_size=%s' /proc/$$/fd/9
+exec 9>&-
 ```
 
 ## Performance
