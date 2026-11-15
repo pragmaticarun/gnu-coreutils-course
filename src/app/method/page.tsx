@@ -49,7 +49,10 @@ export default function MethodPage() {
       <ul className="mt-3 list-disc space-y-1 pl-5">
         {companions.map((tool) => (
           <li key={tool.name}>
-            {tool.name}: {tool.installed ? `${tool.package} (${tool.path})` : "not installed"}
+            {tool.name}:{" "}
+            {tool.installed
+              ? `${tool.package} (${tool.path}), ${tool.project}`
+              : `not installed, ${tool.project}`}
           </li>
         ))}
       </ul>

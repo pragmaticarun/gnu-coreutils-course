@@ -10,30 +10,17 @@ Capture host, as recorded by the generator: `Linux 6.12.113+ x86_64`, locale `en
 
 | | |
 | --- | ---: |
-| Lessons | 41 |
-| Captured lesson examples | 172 |
-| Lesson exercises with solutions | 128 |
-| Cookbook recipes | 19 |
-| Cookbook examples | 38 |
-| Cookbook exercises | 22 |
+| Lessons | 57 |
+| Captured lesson examples | 236 |
+| Lesson exercises with solutions | 176 |
+| Cookbook recipes | 27 |
+| Cookbook examples | 54 |
+| Cookbook exercises | 30 |
 | Reference entries | 105 |
-| Lesson prose | 31,201 words |
-| Cookbook prose | 6,531 words |
+| Lesson prose | 45,664 words |
+| Cookbook prose | 8,343 words |
 
-Companions, checked as `/usr/bin/<name>` so a shell builtin cannot impersonate them:
-
-| Command | On this host |
-| --- | --- |
-| find, xargs | findutils |
-| grep | grep |
-| sed | sed |
-| awk | mawk (via alternatives) |
-| tar | tar |
-| hostname | hostname package, not coreutils |
-| kill, uptime | procps, not coreutils |
-| rsync, perf, `/usr/bin/time` | not installed |
-
-`time` in bash is a keyword. The benchmark helper uses Python `resource.ru_maxrss`, not GNU time.
+Sixteen of the lessons are the Companion Tools module (lessons 42–57). None of those programs are GNU coreutils. The reference page lists each command with its Ubuntu package and upstream project. `/usr/bin/awk` is still mawk via alternatives, even though gawk is installed. `time` in bash is a keyword. `/usr/bin/time` is the GNU time package and is installed. `perf` is not installed: the Ubuntu 24.04 linux-tools packages track kernel 6.8, and this host is `6.12.113+`. `rsync` is not installed. The tracing lesson prints `perf-absent` and describes `perf stat` and `perf record` without counters.
 
 ## Run it locally
 
@@ -87,7 +74,22 @@ Scripts live in `benchmarks/` and are copied to `public/downloads/benchmarks/`.
 | One `/usr/bin/true` versus 400 sequential execs | one call median 0.0008s, 400 calls median 0.1740s. Gap 0.1731s, widest spread 0.0095s. |
 | `cp --sparse=always` versus `--sparse=never` on an 8 MiB hole | always median 0.0010s, never median 0.0135s. Gap 0.0126s, widest spread 0.0115s. Untimed `du -B1` was 0 bytes and 8388608 bytes. |
 
-Scenario checks that refuse to run as root live in `public/sandbox/`. `npm test` runs `scripts/validate_content.py`, which executes those scripts and checks the supplement disclaimer.
+Scenario checks that refuse to run as root live in `public/sandbox/`, including the companion scripts `companion-log-triage.sh`, `companion-large-dupes.sh`, `companion-backup-tar.sh`, `companion-profile-pipeline.sh`, `companion-weird-names.sh`, `companion-parallel-compress.sh`, `companion-cpu-pin.sh`, and `companion-json.sh`. Each one uses `mktemp`, refuses to run as root, and needs no network. `npm test` runs `scripts/validate_content.py`, which executes those scripts and checks the supplement disclaimer and `companions.json`.
+
+### Companion run, kept separate
+
+`python3 benchmarks/measure_companions.py` writes `public/benchmarks/companions.json`. It does not rewrite `sample-run.json` or `supplements.json`. Same harness: 5 trials, median, warm cache, no root, no `drop_caches`, no frequency scaling, elapsed time includes the Python starter. Host: `Linux 6.12.113+ x86_64`, `Intel(R) Xeon(R) Processor`, 4 CPUs, MemTotal 16387328 kB, ext4. Tool versions are in the file (GNU grep 3.11, GNU sed 4.9, mawk 1.3.4, gawk 5.2.1, gzip 1.12, pigz 2.8, zstd 1.5.5, xz 5.4.5, bzip2 1.0.8, GNU tar 1.35, GNU parallel 20231122, hyperfine 1.18.0, strace 6.8, time package 1.9-0.2build1). `perf` is recorded as not installed. These medians are not predictions.
+
+| Benchmark | What this run showed |
+| --- | --- |
+| `grep -F` versus `grep -E`, about 4 MiB | Medians 0.0008s to 0.0009s. Gap inside the spread. Not separated. |
+| mawk versus `sort \| uniq -c`, 200,000 lines | mawk 0.0069s, `sort \| uniq` 0.0237s. Gap 0.0168s, widest spread 0.0010s. |
+| Compress 1 MiB of a repeated log line | zstd `-1` 0.0028s (172 bytes). bzip2 `-1` 0.1096s (2231 bytes). Threaded zstd `-T1` and `-T4` tied. |
+| Compress 1 MiB of seeded random bytes | zstd `-1 -T4` 0.0032s, xz `-1` 0.1414s. Compressed sizes were at least the input size. |
+| `xargs -P` versus GNU parallel, 120 tiny files | `xargs -P4` 0.0298s, `xargs -P1` 0.0913s, `parallel -j4` 0.2969s. |
+| `sed -i` versus a redirect, about 2 MiB | 0.0547s and 0.0546s. Gap inside the spread. Not separated. |
+| `tar --sparse` on an 8 MiB hole | `--sparse` 0.0012s and a 10240-byte archive. Without it, 0.0136s and 8396800 bytes. |
+| `taskset -c 0` around an 8 MiB `sha256sum` | 0.0066s pinned, 0.0062s unpinned. Gap inside the spread. Not separated. |
 
 ## GitHub Pages
 
@@ -116,3 +118,4 @@ If the site should live at the root of a custom domain, set the repository varia
 - `sort -u` and `sort | uniq` differ when the key is narrower than the line. `cut` does not parse CSV quotes.
 - `stdbuf` does not change `cat` or `dd`, which do not use stdio for their data.
 - SHA-256 of the bytes `abc` (no newline) is the usual test vector. A trailing newline is a different digest.
+- Companion tools are not coreutils. `perf` has no matching linux-tools build for kernel 6.12.113+, so no hardware counters are quoted. A private `plocate` database cannot be built here (`updatedb` fails with `fchown: Operation not permitted`). `logger` fails because `/dev/log` is absent. Neither failure was patched with root.

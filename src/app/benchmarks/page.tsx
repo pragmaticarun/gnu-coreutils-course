@@ -1,4 +1,4 @@
-import { getBenchmarks, getCourse, getSupplementBenchmarks } from "@/lib/content";
+import { getBenchmarks, getCompanionBenchmarks, getCourse, getSupplementBenchmarks } from "@/lib/content";
 import type { BenchFile } from "@/lib/types";
 import { withBase } from "@/lib/utils";
 
@@ -82,6 +82,7 @@ export default function BenchmarksPage() {
   const course = getCourse();
   const data = getBenchmarks();
   const supplements = getSupplementBenchmarks();
+  const companions = getCompanionBenchmarks();
   return (
     <div className="mx-auto max-w-4xl">
       <h1 className="font-serif text-4xl">Bounded benchmarks</h1>
@@ -111,6 +112,14 @@ export default function BenchmarksPage() {
           "bench_startup.py",
           "bench_sparse.py",
           "measure_supplements.py",
+          "measure_companions.py",
+          "bench_grep_mode.py",
+          "bench_awk_vs_sort.py",
+          "bench_compress.py",
+          "bench_xargs_p.py",
+          "bench_sed_rewrite.py",
+          "bench_sparse_tar.py",
+          "bench_taskset.py",
         ].map((name) => (
           <li key={name}>
             <a className="underline" href={withBase(`/downloads/benchmarks/${name}`)}>
@@ -138,6 +147,23 @@ export default function BenchmarksPage() {
         <BenchTables data={supplements} label="Disclosure for the supplement run" />
       ) : (
         <p className="mt-4 text-sm text-[var(--muted)]">No supplement run was recorded.</p>
+      )}
+      <h2 className="mt-12 font-serif text-3xl">Companion tools, measured separately</h2>
+      <p className="mt-3 leading-7">
+        grep, awk, compression, xargs, sed -i, sparse tar, and a CPU pin were measured
+        with the same style of harness and written to{" "}
+        <a className="underline" href={withBase("/benchmarks/companions.json")}>
+          companions.json
+        </a>
+        . None of those tools are GNU coreutils. The disclosure in that file is the one
+        that applies, including the tool versions. These medians are not part of the
+        sample run or the supplement run. Tools that were not installed, including perf,
+        are described in the lessons without a timing.
+      </p>
+      {companions ? (
+        <BenchTables data={companions} label="Disclosure for the companion run" />
+      ) : (
+        <p className="mt-4 text-sm text-[var(--muted)]">No companion run was recorded.</p>
       )}
     </div>
   );

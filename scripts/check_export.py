@@ -10,6 +10,8 @@ from urllib.parse import unquote, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "out"
+_raw_base = __import__("os").environ.get("NEXT_PUBLIC_BASE_PATH", "")
+BASE = "" if _raw_base in {"", "/"} else _raw_base.rstrip("/")
 BANNED = ("lorem ipsum", "todo:", "placeholder text", "welcome to your app")
 
 
@@ -33,6 +35,8 @@ def local_targets(html_path: Path) -> list[str]:
 
 def resolve(url_path: str) -> Path | None:
     path = url_path.split("?", 1)[0]
+    if BASE and (path == BASE or path.startswith(BASE + "/")):
+        path = path[len(BASE):] or "/"
     if not path.startswith("/"):
         return None
     rel = path.lstrip("/")
@@ -80,6 +84,7 @@ def main() -> None:
         OUT / "downloads" / "coreutils-examples.zip",
         OUT / "benchmarks" / "sample-run.json",
         OUT / "benchmarks" / "supplements.json",
+        OUT / "benchmarks" / "companions.json",
     ]
     for path in required:
         if not path.is_file():

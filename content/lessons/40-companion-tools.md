@@ -5,16 +5,16 @@ title: Tools that are not coreutils
 module: How the toolbox thinks
 level: intermediate
 minutes: 30
-summary: find, xargs, grep, sed, awk, and tar sit beside the toolbox and are easy to misfile as coreutils. hostname, kill, and uptime are in the GNU manual and still belong to other Ubuntu packages. rsync, perf, and GNU time are not installed here.
+summary: find, xargs, grep, sed, awk, and tar sit beside the toolbox and are easy to misfile as coreutils. hostname, kill, and uptime are in the GNU manual and still belong to other Ubuntu packages. The Companion Tools module is the longer course for those guests.
 objectives:
   - Mark find, grep, sed, awk, and tar as other packages while using them for one real task
   - Walk a filename that contains a space with find -print0 and xargs -0
   - Show which package owns hostname, kill, and uptime on this image
-  - Record that rsync, perf, and /usr/bin/time are absent
+  - Read the status of rsync, perf, and /usr/bin/time instead of assuming they are absent
 manual: Common options | https://www.gnu.org/software/coreutils/manual/html_node/Common-options.html
 manual: Introduction | https://www.gnu.org/software/coreutils/manual/html_node/Introduction.html
 gnu_vs_bsd: |
-  BSD base systems ship their own find, grep, sed, awk, and tar, with different extended flags. GNU find is findutils. GNU grep is grep. On this Ubuntu image awk is mawk via alternatives, not gawk. The GNU coreutils manual documents hostname, kill, and uptime, but dpkg attributes those paths to other packages here. macOS `hostname` is not the hostname package this lesson queries. rsync and perf were not installed, so this lesson does not demonstrate their flags. No BSD companion was executed.
+  BSD base systems ship their own find, grep, sed, awk, and tar, with different extended flags. GNU find is findutils. GNU grep is grep. On this Ubuntu image /usr/bin/awk is mawk via alternatives, not gawk, even when the gawk package is installed. The GNU coreutils manual documents hostname, kill, and uptime, but dpkg attributes those paths to other packages here. macOS hostname is not the hostname package this lesson queries. rsync is not installed. perf is not installed because Ubuntu 24.04's linux-tools packages track kernel 6.8 and this host is 6.12.113+. No BSD companion was executed.
 ---
 
 Coreutils is a bounded set. The introduction in the manual describes that set. Everything else you type in a shell is a guest. Guests are useful. Calling them coreutils leads to the wrong manual, the wrong bug tracker, and a script that assumes a flag the package never shipped. This lesson runs the guests and names the package.
@@ -31,7 +31,7 @@ Coreutils is a bounded set. The introduction in the manual describes that set. E
 
 `hostname`, `kill`, and `uptime` have nodes in the GNU coreutils manual because the upstream project documents them. Ubuntu packages them elsewhere. `dpkg -S` on the three paths shows the owning packages. The orientation lesson made the same point with the version of coreutils you do have. Read the manual node only after you have checked which binary answered.
 
-`rsync` is not installed. `perf` is not installed. `/usr/bin/time` is not installed. The shell keyword `time` is bash, and it does not print maximum RSS. The benchmark helper uses Python's `resource` module for that counter and says so in the disclosure. Do not paste a GNU time format string into this environment and expect a binary to appear.
+The example prints a status for `rsync`, `perf`, and `/usr/bin/time`. Status 0 means that path resolved. Status 1 means it did not. Read the captured lines. The shell keyword `time` is bash even when `/usr/bin/time` exists, and the keyword does not print maximum RSS. The benchmark helper uses Python's `resource` module for that counter and says so in the disclosure. A GNU time format string belongs to `/usr/bin/time` from the `time` package, which is not coreutils. `perf` has no matching linux-tools build for kernel 6.12.113+ on this Ubuntu 24.04 image, so this course records no hardware counters. `rsync` is a separate project and it is not installed, so no rsync flag is demonstrated. The Companion Tools lessons, starting at the package boundary, go through the guests one family at a time. None of those lessons are coreutils lessons.
 
 ## Worked examples
 
@@ -98,7 +98,7 @@ In a C++ or Rust repository the usual walk is `find . -name '*.rs' -print0` or t
 
 Checksum an NDK zip with `sha256sum`, which is coreutils, and search the zip listing with tools that are not. Write the package name in the script comment. The next person will thank you when `awk` is mawk and their gawk function is missing.
 
-When a blog shows `time -v`, check `command -v /usr/bin/time` before you port the flag. On this image the check fails. Use the benchmark helper or a language runtime counter.
+When a blog shows `time -v`, check `command -v /usr/bin/time` before you port the flag. Status 1 means the binary is absent. Status 0 means the binary exists and is still not coreutils. The shell keyword will not accept `-v`.
 
 ## Tips and pitfalls
 
@@ -158,6 +158,6 @@ dpkg -S /usr/bin/hostname
 
 `find` is a directory walk, like `du`, and it does not read file bodies unless the predicate asks it to. `grep` reads bodies. Pointing `grep` at a tree of build artifacts reads those artifacts. Restrict the walk. `xargs` exists to batch arguments so you do not pay one exec per file, and also so you do not overflow `ARG_MAX`. A batch that is too large fails. A batch of one is a slow loop. The default batching is the feature. Do not replace it with a shell `while read` unless you need the loop, and if you do, read NUL with `read -d ''`.
 
-`sed` and `awk` on a multi-gigabyte log are streaming and usually fine. They become the bottleneck when the script captures groups back into the shell once per line. Do the whole transform in one awk process. mawk and gawk differ in speed and in features. This course does not publish a winner, because the installed awk is mawk and gawk is not here to time.
+`sed` and `awk` on a multi-gigabyte log are streaming and usually fine. They become the bottleneck when the script captures groups back into the shell once per line. Do the whole transform in one awk process. mawk and gawk differ in speed and in features. `/usr/bin/awk` on this host is mawk. gawk is installed beside it and is called by path in the awk lesson. The companion benchmark file records a mawk count against `sort | uniq -c`. It does not publish a universal winner.
 
-`tar` of a tree of small files is metadata plus content. It is not a benchmark of `cp`. `rsync` would be a different algorithm and it is not installed, so any claim about its speed on this host would be fiction. The copy benchmark uses `cp` and `dd` only.
+`tar` of a tree of small files is metadata plus content. It is not a benchmark of `cp`. `rsync` would be a different algorithm and it is not installed, so any claim about its speed on this host would be fiction. The copy benchmark uses `cp` and `dd` only. Sparse tar sizes are in the companion benchmark, not in a guessed ratio.
