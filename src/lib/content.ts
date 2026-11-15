@@ -20,3 +20,9 @@ export function getSupplementBenchmarks(): BenchFile | null {
   if (!fs.existsSync(file)) return null;
   return JSON.parse(fs.readFileSync(file, "utf8")) as BenchFile;
 }
+
+export function getCompanionBenchmarks(): BenchFile | null {
+  const file = path.join(root, "public", "benchmarks", "companions.json");
+  if (!fs.existsSync(file)) return null;
+  return JSON.parse(fs.readFileSync(file, "utf8")) as BenchFile;
+}

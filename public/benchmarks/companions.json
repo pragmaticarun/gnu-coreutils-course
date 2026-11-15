@@ -1,0 +1,1507 @@
+{
+  "disclosure": {
+    "coreutils": "ls (GNU coreutils) 9.4",
+    "package": "9.4-3ubuntu6.3",
+    "uname": "Linux 6.12.113+ x86_64",
+    "python": "3.12.3",
+    "locale": "en_US.UTF-8",
+    "filesystemDf": "ext4",
+    "filesystemStat": "ext2/ext3",
+    "seed": 20261108,
+    "trials": 5,
+    "maxRss": "Linux ru_maxrss of waited-for children, kibibytes",
+    "warmCache": "Inputs are created in this process and reread immediately. Caches are not dropped. This is not a cold-disk measurement and not a ranking that transfers to another machine.",
+    "noRoot": true,
+    "noDropCaches": true,
+    "helper": "Most elapsed times include a short Python process that starts the command and waits. Compare variants with each other. Do not treat the absolute seconds as a shell-only measurement.",
+    "separateFromSampleRun": true,
+    "separateFromSupplements": true,
+    "noSystemTuning": true,
+    "cpuModel": "Intel(R) Xeon(R) Processor",
+    "cpuCount": 4,
+    "memTotal": "16387328 kB",
+    "tools": {
+      "grep": "grep (GNU grep) 3.11",
+      "grepPackage": "3.11-4build1",
+      "sed": "sed (GNU sed) 4.9",
+      "sedPackage": "4.9-2ubuntu0.24.04.1",
+      "awk": "mawk 1.3.4 20240123",
+      "awkPackage": "1.3.4.20240123-1build1",
+      "gawk": "GNU Awk 5.2.1, API 3.2, PMA Avon 8-g1, (GNU MPFR 4.2.1, GNU MP 6.3.0)",
+      "gawkPackage": "1:5.2.1-2ubuntu0.1",
+      "gzip": "gzip 1.12",
+      "gzipPackage": "1.12-1ubuntu3.2",
+      "pigz": "pigz 2.8",
+      "pigzPackage": "2.8-1",
+      "zstd": "*** Zstandard CLI (64-bit) v1.5.5, by Yann Collet ***",
+      "zstdPackage": "1.5.5+dfsg2-2build1.1",
+      "xz": "xz (XZ Utils) 5.4.5",
+      "xzPackage": "5.6.1+really5.4.5-1ubuntu0.4",
+      "bzip2": "bzip2, a block-sorting file compressor.  Version 1.0.8, 13-Jul-2019.",
+      "bzip2Package": "1.0.8-5.1ubuntu0.1",
+      "tar": "tar (GNU tar) 1.35",
+      "tarPackage": "1.35+dfsg-3ubuntu0.4",
+      "parallel": "GNU parallel 20231122",
+      "parallelPackage": "20231122+ds-1",
+      "time": "1.9-0.2build1",
+      "hyperfine": "hyperfine 1.18.0",
+      "strace": "strace -- version 6.8",
+      "perf": "not-installed"
+    },
+    "disclaimer": "Warm-cache timings from this machine only. Each trial includes a short Python process that starts the command. Caches were not dropped. No root, no sysctl, no drop_caches, no frequency scaling. These numbers do not predict another computer, a cold cache, a larger file, or a different package build. Do not compare a median here with sample-run.json or supplements.json as if they were one experiment. Companion tools are not GNU coreutils. perf was not installed, so this file has no perf counters."
+  },
+  "benches": [
+    {
+      "id": "grep-fixed-locale",
+      "title": "grep -F, locale, and a small regex",
+      "question": "On one warm ASCII log, do LC_ALL=C, grep -F, and a tiny extended regex separate?",
+      "input": "4195400 bytes, needle every 40 lines, 5 trials.",
+      "variants": [
+        {
+          "name": "LC_ALL=C grep -F",
+          "trials": [
+            {
+              "elapsed": 0.000913,
+              "user": 0.000655,
+              "system": 0.0,
+              "maxRssKb": 11416,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000848,
+              "user": 0.000701,
+              "system": 0.0,
+              "maxRssKb": 11416,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.00088,
+              "user": 0.000614,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000767,
+              "user": 0.000653,
+              "system": 0.0,
+              "maxRssKb": 11420,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000853,
+              "user": 0.000599,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.000853,
+            "user": 0.000653,
+            "system": 0.0,
+            "maxRssKb": 11416
+          }
+        },
+        {
+          "name": "UTF-8 grep -F",
+          "trials": [
+            {
+              "elapsed": 0.000819,
+              "user": 0.000708,
+              "system": 0.0,
+              "maxRssKb": 11744,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000893,
+              "user": 0.000745,
+              "system": 0.0,
+              "maxRssKb": 11772,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000951,
+              "user": 0.000708,
+              "system": 0.0,
+              "maxRssKb": 11900,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000988,
+              "user": 0.000713,
+              "system": 0.0,
+              "maxRssKb": 11744,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.00086,
+              "user": 0.000723,
+              "system": 0.0,
+              "maxRssKb": 11772,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.000893,
+            "user": 0.000713,
+            "system": 0.0,
+            "maxRssKb": 11772
+          }
+        },
+        {
+          "name": "UTF-8 grep -E",
+          "trials": [
+            {
+              "elapsed": 0.000976,
+              "user": 0.000728,
+              "system": 0.0,
+              "maxRssKb": 11784,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000871,
+              "user": 0.000761,
+              "system": 0.0,
+              "maxRssKb": 11772,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000742,
+              "user": 0.000634,
+              "system": 0.0,
+              "maxRssKb": 11776,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000755,
+              "user": 0.000634,
+              "system": 0.0,
+              "maxRssKb": 11780,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.000844,
+              "user": 0.000609,
+              "system": 0.0,
+              "maxRssKb": 11776,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.000844,
+            "user": 0.000634,
+            "system": 0.0,
+            "maxRssKb": 11776
+          }
+        }
+      ],
+      "note": "Medians on this run: UTF-8 grep -E median 0.0008s, LC_ALL=C grep -F median 0.0009s, UTF-8 grep -F median 0.0009s. The gap between the fastest and slowest median is 0.0000s, which is within the widest trial spread (0.0002s). This run does not separate the variants. It is not evidence that one form is generally faster. Input is 4195400 ASCII bytes with the fixed string NEEDLE-TOKEN. Seed constant 20261108 is not used to vary bytes. grep -c exits 0 when the count is non-zero. The regex is one optional character, not a pathological pattern. This is a warm-cache CPU comparison on this build of GNU grep. It is not a ranking for binary files, -P, or a cold page cache."
+    },
+    {
+      "id": "awk-vs-sort",
+      "title": "mawk frequency count versus sort | uniq -c",
+      "question": "On 200,000 short keys, does one mawk process separate from sort | uniq -c?",
+      "input": "1349907 bytes, 40 keys, seed 20261108, 5 trials, LC_ALL=C.",
+      "variants": [
+        {
+          "name": "mawk one pass",
+          "trials": [
+            {
+              "elapsed": 0.007129,
+              "user": 0.006964,
+              "system": 0.0,
+              "maxRssKb": 11224,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.006825,
+              "user": 0.003358,
+              "system": 0.003358,
+              "maxRssKb": 11188,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.006847,
+              "user": 0.006598,
+              "system": 0.0,
+              "maxRssKb": 11248,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.006886,
+              "user": 0.006632,
+              "system": 0.0,
+              "maxRssKb": 11224,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.007287,
+              "user": 0.003488,
+              "system": 0.003488,
+              "maxRssKb": 11248,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.006886,
+            "user": 0.006598,
+            "system": 0.0,
+            "maxRssKb": 11224
+          }
+        },
+        {
+          "name": "sort | uniq -c",
+          "trials": [
+            {
+              "elapsed": 0.023584,
+              "user": 0.036477,
+              "system": 0.003954,
+              "maxRssKb": 16992,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.023666,
+              "user": 0.031389,
+              "system": 0.008854,
+              "maxRssKb": 16992,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.024271,
+              "user": 0.040265,
+              "system": 0.0,
+              "maxRssKb": 16992,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.023895,
+              "user": 0.03219,
+              "system": 0.007805,
+              "maxRssKb": 16932,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.023304,
+              "user": 0.035782,
+              "system": 0.003838,
+              "maxRssKb": 16988,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.023666,
+            "user": 0.035782,
+            "system": 0.003954,
+            "maxRssKb": 16992
+          }
+        }
+      ],
+      "note": "Medians on this run: mawk one pass median 0.0069s, sort | uniq -c median 0.0237s. The gap is 0.0168s and the widest trial spread is 0.0010s, so the medians are farther apart than the scatter of this sample. That is evidence about this input, this warm cache, and this machine. It is not a universal ranking and it says nothing about cold disk or a different filesystem. 200000 lines, 40 distinct keys, seed 20261108, file 1349907 bytes. /usr/bin/awk is mawk on this host. Both runs use LC_ALL=C. The harness discards stdout, so this does not check that the counts match; the lesson scripts check that on a small file. sort must order the whole file before uniq can count. mawk holds the key set in memory. A key set that does not fit in RAM is a different experiment."
+    },
+    {
+      "id": "compress-compressible",
+      "title": "Compression of a repetitive log",
+      "question": "On 1 MiB of repeated log lines, how do gzip, pigz, zstd, xz -1, and bzip2 -1 compare?",
+      "input": "1048576 bytes, seed 20261108, 5 trials, thread cap 4.",
+      "variants": [
+        {
+          "name": "gzip -6",
+          "trials": [
+            {
+              "elapsed": 0.004393,
+              "user": 0.004131,
+              "system": 0.0,
+              "maxRssKb": 11416,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.004243,
+              "user": 0.0,
+              "system": 0.003966,
+              "maxRssKb": 11424,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.004286,
+              "user": 0.004049,
+              "system": 0.0,
+              "maxRssKb": 11416,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.004297,
+              "user": 0.004056,
+              "system": 0.0,
+              "maxRssKb": 11392,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.004373,
+              "user": 0.004104,
+              "system": 0.0,
+              "maxRssKb": 11412,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.004297,
+            "user": 0.004056,
+            "system": 0.0,
+            "maxRssKb": 11416
+          }
+        },
+        {
+          "name": "pigz -p1 -6",
+          "trials": [
+            {
+              "elapsed": 0.003453,
+              "user": 0.003176,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.003401,
+              "user": 0.003157,
+              "system": 0.0,
+              "maxRssKb": 11424,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.00348,
+              "user": 0.003243,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.003484,
+              "user": 0.003246,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.00345,
+              "user": 0.003165,
+              "system": 0.0,
+              "maxRssKb": 11424,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.003453,
+            "user": 0.003176,
+            "system": 0.0,
+            "maxRssKb": 11404
+          }
+        },
+        {
+          "name": "pigz -p4 -6",
+          "trials": [
+            {
+              "elapsed": 0.002608,
+              "user": 0.00517,
+              "system": 0.0,
+              "maxRssKb": 11420,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.003606,
+              "user": 0.005357,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.002548,
+              "user": 0.005251,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.00285,
+              "user": 0.005387,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.00298,
+              "user": 0.0,
+              "system": 0.005377,
+              "maxRssKb": 11400,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.00285,
+            "user": 0.005251,
+            "system": 0.0,
+            "maxRssKb": 11404
+          }
+        },
+        {
+          "name": "zstd -1 -T1",
+          "trials": [
+            {
+              "elapsed": 0.002311,
+              "user": 0.002571,
+              "system": 0.0,
+              "maxRssKb": 11424,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.002705,
+              "user": 0.002461,
+              "system": 0.0,
+              "maxRssKb": 11392,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.003014,
+              "user": 0.002524,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.002845,
+              "user": 0.002351,
+              "system": 0.0,
+              "maxRssKb": 11424,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.003501,
+              "user": 0.0,
+              "system": 0.002214,
+              "maxRssKb": 11420,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.002845,
+            "user": 0.002461,
+            "system": 0.0,
+            "maxRssKb": 11420
+          }
+        },
+        {
+          "name": "zstd -1 -T4",
+          "trials": [
+            {
+              "elapsed": 0.003168,
+              "user": 0.00299,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.002093,
+              "user": 0.002423,
+              "system": 0.0,
+              "maxRssKb": 11408,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.002813,
+              "user": 0.002803,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.002459,
+              "user": 0.002788,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.003163,
+              "user": 0.0,
+              "system": 0.002837,
+              "maxRssKb": 11424,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.002813,
+            "user": 0.002788,
+            "system": 0.0,
+            "maxRssKb": 11404
+          }
+        },
+        {
+          "name": "zstd -6 -T1",
+          "trials": [
+            {
+              "elapsed": 0.004801,
+              "user": 0.003951,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.004169,
+              "user": 0.0,
+              "system": 0.003392,
+              "maxRssKb": 11408,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.003504,
+              "user": 0.003554,
+              "system": 0.0,
+              "maxRssKb": 11408,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.003647,
+              "user": 0.0,
+              "system": 0.003405,
+              "maxRssKb": 11364,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.003796,
+              "user": 0.003714,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.003796,
+            "user": 0.003554,
+            "system": 0.0,
+            "maxRssKb": 11404
+          }
+        },
+        {
+          "name": "xz -1",
+          "trials": [
+            {
+              "elapsed": 0.005783,
+              "user": 0.005513,
+              "system": 0.0,
+              "maxRssKb": 11380,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.005461,
+              "user": 0.005333,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.005555,
+              "user": 0.0,
+              "system": 0.005299,
+              "maxRssKb": 11376,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.005484,
+              "user": 0.005255,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.005435,
+              "user": 0.0052,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.005484,
+            "user": 0.005255,
+            "system": 0.0,
+            "maxRssKb": 11404
+          }
+        },
+        {
+          "name": "bzip2 -1",
+          "trials": [
+            {
+              "elapsed": 0.109637,
+              "user": 0.109339,
+              "system": 0.0,
+              "maxRssKb": 11364,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.109877,
+              "user": 0.109563,
+              "system": 0.0,
+              "maxRssKb": 11416,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.109999,
+              "user": 0.109752,
+              "system": 0.0,
+              "maxRssKb": 11400,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.109464,
+              "user": 0.109173,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.109474,
+              "user": 0.109204,
+              "system": 0.0,
+              "maxRssKb": 11424,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.109637,
+            "user": 0.109339,
+            "system": 0.0,
+            "maxRssKb": 11404
+          }
+        }
+      ],
+      "note": "Medians on this run: zstd -1 -T4 median 0.0028s, zstd -1 -T1 median 0.0028s, pigz -p4 -6 median 0.0029s, pigz -p1 -6 median 0.0035s, zstd -6 -T1 median 0.0038s, gzip -6 median 0.0043s, xz -1 median 0.0055s, bzip2 -1 median 0.1096s. The gap is 0.1068s and the widest trial spread is 0.0013s, so the medians are farther apart than the scatter of this sample. That is evidence about this input, this warm cache, and this machine. It is not a universal ranking and it says nothing about cold disk or a different filesystem. Uncompressed size 1048576 bytes. One extra compression, not a trial, produced these sizes: gzip -6 3141 bytes; pigz -p1 -6 3289 bytes; pigz -p4 -6 3289 bytes; zstd -1 -T1 172 bytes; zstd -1 -T4 172 bytes; zstd -6 -T1 171 bytes; xz -1 344 bytes; bzip2 -1 2231 bytes. Threads requested where a flag exists: 4. nproc on this host is 4. gzip -n omits name and timestamp. The harness discards compressed bytes during the timed trials. Levels are the flags in the variant name, not the tools' defaults. This is warm cache, one machine, and not a reason to pick a format for a different file."
+    },
+    {
+      "id": "compress-random",
+      "title": "Compression of incompressible bytes",
+      "question": "On 1 MiB from a seeded PRNG, how do the same compressors compare when the ratio cannot collapse?",
+      "input": "1048576 bytes, seed 20261108, 5 trials, thread cap 4.",
+      "variants": [
+        {
+          "name": "gzip -6",
+          "trials": [
+            {
+              "elapsed": 0.024682,
+              "user": 0.024423,
+              "system": 0.0,
+              "maxRssKb": 11416,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.024442,
+              "user": 0.020169,
+              "system": 0.004033,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.024427,
+              "user": 0.024198,
+              "system": 0.0,
+              "maxRssKb": 11408,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.024564,
+              "user": 0.024431,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.025822,
+              "user": 0.025561,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.024564,
+            "user": 0.024423,
+            "system": 0.0,
+            "maxRssKb": 11404
+          }
+        },
+        {
+          "name": "pigz -p1 -6",
+          "trials": [
+            {
+              "elapsed": 0.019062,
+              "user": 0.018731,
+              "system": 0.0,
+              "maxRssKb": 11408,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.01904,
+              "user": 0.014952,
+              "system": 0.003738,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.01887,
+              "user": 0.01857,
+              "system": 0.0,
+              "maxRssKb": 11380,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.018803,
+              "user": 0.018563,
+              "system": 0.0,
+              "maxRssKb": 11392,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.019088,
+              "user": 0.018838,
+              "system": 0.0,
+              "maxRssKb": 11424,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.01904,
+            "user": 0.01857,
+            "system": 0.0,
+            "maxRssKb": 11404
+          }
+        },
+        {
+          "name": "pigz -p4 -6",
+          "trials": [
+            {
+              "elapsed": 0.007411,
+              "user": 0.021823,
+              "system": 0.0,
+              "maxRssKb": 11412,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.007557,
+              "user": 0.012397,
+              "system": 0.008264,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.006233,
+              "user": 0.020678,
+              "system": 0.0,
+              "maxRssKb": 11408,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.006969,
+              "user": 0.015641,
+              "system": 0.005213,
+              "maxRssKb": 11424,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.00695,
+              "user": 0.018076,
+              "system": 0.003012,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.006969,
+            "user": 0.018076,
+            "system": 0.003012,
+            "maxRssKb": 11408
+          }
+        },
+        {
+          "name": "zstd -1 -T1",
+          "trials": [
+            {
+              "elapsed": 0.003886,
+              "user": 0.001796,
+              "system": 0.001796,
+              "maxRssKb": 11408,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.003693,
+              "user": 0.003539,
+              "system": 0.0,
+              "maxRssKb": 11396,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.004127,
+              "user": 0.003365,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.003688,
+              "user": 0.0,
+              "system": 0.003339,
+              "maxRssKb": 11424,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.003083,
+              "user": 0.003154,
+              "system": 0.0,
+              "maxRssKb": 11376,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.003693,
+            "user": 0.003154,
+            "system": 0.0,
+            "maxRssKb": 11404
+          }
+        },
+        {
+          "name": "zstd -1 -T4",
+          "trials": [
+            {
+              "elapsed": 0.003237,
+              "user": 0.0,
+              "system": 0.003659,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.003166,
+              "user": 0.0,
+              "system": 0.00395,
+              "maxRssKb": 11408,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.003166,
+              "user": 0.0,
+              "system": 0.003606,
+              "maxRssKb": 11416,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.003607,
+              "user": 0.003547,
+              "system": 0.0,
+              "maxRssKb": 11376,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.00285,
+              "user": 0.003126,
+              "system": 0.0,
+              "maxRssKb": 11424,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.003166,
+            "user": 0.0,
+            "system": 0.003606,
+            "maxRssKb": 11408
+          }
+        },
+        {
+          "name": "zstd -6 -T1",
+          "trials": [
+            {
+              "elapsed": 0.004953,
+              "user": 0.002194,
+              "system": 0.002194,
+              "maxRssKb": 11400,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.004753,
+              "user": 0.0,
+              "system": 0.004185,
+              "maxRssKb": 11388,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.004478,
+              "user": 0.0,
+              "system": 0.004332,
+              "maxRssKb": 11392,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.005173,
+              "user": 0.0,
+              "system": 0.00465,
+              "maxRssKb": 11392,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.004069,
+              "user": 0.003693,
+              "system": 0.0,
+              "maxRssKb": 11400,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.004753,
+            "user": 0.0,
+            "system": 0.004185,
+            "maxRssKb": 11392
+          }
+        },
+        {
+          "name": "xz -1",
+          "trials": [
+            {
+              "elapsed": 0.140385,
+              "user": 0.140124,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.141419,
+              "user": 0.137089,
+              "system": 0.004032,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.142284,
+              "user": 0.142022,
+              "system": 0.0,
+              "maxRssKb": 11400,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.138944,
+              "user": 0.134686,
+              "system": 0.003961,
+              "maxRssKb": 11400,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.143922,
+              "user": 0.135754,
+              "system": 0.007985,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.141419,
+            "user": 0.137089,
+            "system": 0.003961,
+            "maxRssKb": 11404
+          }
+        },
+        {
+          "name": "bzip2 -1",
+          "trials": [
+            {
+              "elapsed": 0.083204,
+              "user": 0.079009,
+              "system": 0.00395,
+              "maxRssKb": 11380,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.098482,
+              "user": 0.098236,
+              "system": 0.0,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.084897,
+              "user": 0.084504,
+              "system": 0.0,
+              "maxRssKb": 11424,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.08288,
+              "user": 0.082571,
+              "system": 0.0,
+              "maxRssKb": 11424,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.083613,
+              "user": 0.083317,
+              "system": 0.0,
+              "maxRssKb": 11416,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.083613,
+            "user": 0.083317,
+            "system": 0.0,
+            "maxRssKb": 11416
+          }
+        }
+      ],
+      "note": "Medians on this run: zstd -1 -T4 median 0.0032s, zstd -1 -T1 median 0.0037s, zstd -6 -T1 median 0.0048s, pigz -p4 -6 median 0.0070s, pigz -p1 -6 median 0.0190s, gzip -6 median 0.0246s, bzip2 -1 median 0.0836s, xz -1 median 0.1414s. The gap is 0.1383s and the widest trial spread is 0.0156s, so the medians are farther apart than the scatter of this sample. That is evidence about this input, this warm cache, and this machine. It is not a universal ranking and it says nothing about cold disk or a different filesystem. Uncompressed size 1048576 bytes. One extra compression, not a trial, produced these sizes: gzip -6 1048754 bytes; pigz -p1 -6 1048914 bytes; pigz -p4 -6 1048914 bytes; zstd -1 -T1 1048614 bytes; zstd -1 -T4 1048614 bytes; zstd -6 -T1 1048613 bytes; xz -1 1048688 bytes; bzip2 -1 1057197 bytes. Threads requested where a flag exists: 4. nproc on this host is 4. gzip -n omits name and timestamp. The harness discards compressed bytes during the timed trials. Levels are the flags in the variant name, not the tools' defaults. This is warm cache, one machine, and not a reason to pick a format for a different file."
+    },
+    {
+      "id": "xargs-parallel",
+      "title": "xargs -P versus GNU parallel on tiny processes",
+      "question": "When each job is a checksum of a few bytes, does a process pool separate from one-at-a-time xargs?",
+      "input": "120 files, 5 trials, up to 4 workers.",
+      "variants": [
+        {
+          "name": "xargs -P1",
+          "trials": [
+            {
+              "elapsed": 0.106382,
+              "user": 0.079521,
+              "system": 0.022377,
+              "maxRssKb": 11404,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.089255,
+              "user": 0.072387,
+              "system": 0.015566,
+              "maxRssKb": 11424,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.089271,
+              "user": 0.072507,
+              "system": 0.016599,
+              "maxRssKb": 11352,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.092295,
+              "user": 0.078134,
+              "system": 0.014083,
+              "maxRssKb": 11424,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.091287,
+              "user": 0.081276,
+              "system": 0.009882,
+              "maxRssKb": 11416,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.091287,
+            "user": 0.078134,
+            "system": 0.015566,
+            "maxRssKb": 11416
+          }
+        },
+        {
+          "name": "xargs -P4",
+          "trials": [
+            {
+              "elapsed": 0.029763,
+              "user": 0.068469,
+              "system": 0.019433,
+              "maxRssKb": 11408,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.031574,
+              "user": 0.071279,
+              "system": 0.016302,
+              "maxRssKb": 11376,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.029986,
+              "user": 0.0752,
+              "system": 0.010753,
+              "maxRssKb": 11392,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.02918,
+              "user": 0.066572,
+              "system": 0.019551,
+              "maxRssKb": 11396,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.02973,
+              "user": 0.067021,
+              "system": 0.01803,
+              "maxRssKb": 11420,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.029763,
+            "user": 0.068469,
+            "system": 0.01803,
+            "maxRssKb": 11396
+          }
+        },
+        {
+          "name": "parallel -j4",
+          "trials": [
+            {
+              "elapsed": 0.366072,
+              "user": 0.327566,
+              "system": 0.259278,
+              "maxRssKb": 20500,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.304714,
+              "user": 0.324159,
+              "system": 0.210996,
+              "maxRssKb": 18452,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.296872,
+              "user": 0.299761,
+              "system": 0.219512,
+              "maxRssKb": 18472,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.287932,
+              "user": 0.2489,
+              "system": 0.247058,
+              "maxRssKb": 18580,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.292504,
+              "user": 0.292814,
+              "system": 0.203536,
+              "maxRssKb": 18468,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.296872,
+            "user": 0.299761,
+            "system": 0.219512,
+            "maxRssKb": 18472
+          }
+        }
+      ],
+      "note": "Medians on this run: xargs -P4 median 0.0298s, xargs -P1 median 0.0913s, parallel -j4 median 0.2969s. The gap is 0.2671s and the widest trial spread is 0.0781s, so the medians are farther apart than the scatter of this sample. That is evidence about this input, this warm cache, and this machine. It is not a universal ranking and it says nothing about cold disk or a different filesystem. 120 files of one short line each. Seed constant 20261108 is not used to vary bytes. Each file is a separate sha256sum process. Parallelism is 4, capped at 4 and at nproc (4). GNU parallel is invoked with --will-cite so the citation notice is not part of the work. The checksums are discarded. This measures process overhead on tiny inputs. A multi-megabyte compression per file is a different experiment."
+    },
+    {
+      "id": "sed-rewrite",
+      "title": "sed -i versus a streaming redirect",
+      "question": "With the same initial copy, does sed -i separate from sed writing a new file?",
+      "input": "2097140 bytes, 5 trials.",
+      "variants": [
+        {
+          "name": "cp then sed -i",
+          "trials": [
+            {
+              "elapsed": 0.054254,
+              "user": 0.043223,
+              "system": 0.005748,
+              "maxRssKb": 11776,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.054736,
+              "user": 0.043122,
+              "system": 0.005936,
+              "maxRssKb": 11620,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.054379,
+              "user": 0.043349,
+              "system": 0.005964,
+              "maxRssKb": 11784,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.056032,
+              "user": 0.04146,
+              "system": 0.007907,
+              "maxRssKb": 11900,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.056734,
+              "user": 0.0451,
+              "system": 0.003606,
+              "maxRssKb": 11792,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.054736,
+            "user": 0.043223,
+            "system": 0.005936,
+            "maxRssKb": 11784
+          }
+        },
+        {
+          "name": "cp then sed redirect",
+          "trials": [
+            {
+              "elapsed": 0.049784,
+              "user": 0.047365,
+              "system": 0.001528,
+              "maxRssKb": 11776,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.054491,
+              "user": 0.046266,
+              "system": 0.003895,
+              "maxRssKb": 11756,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.054925,
+              "user": 0.043993,
+              "system": 0.006095,
+              "maxRssKb": 11900,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.05565,
+              "user": 0.044852,
+              "system": 0.006048,
+              "maxRssKb": 11772,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.054617,
+              "user": 0.046539,
+              "system": 0.003215,
+              "maxRssKb": 11772,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.054617,
+            "user": 0.046266,
+            "system": 0.003895,
+            "maxRssKb": 11772
+          }
+        }
+      ],
+      "note": "Medians on this run: cp then sed redirect median 0.0546s, cp then sed -i median 0.0547s. The gap between the fastest and slowest median is 0.0001s, which is within the widest trial spread (0.0059s). This run does not separate the variants. It is not evidence that one form is generally faster. Base file is 2097140 bytes. Seed constant 20261108 is unused. Both variants copy the base file once, then edit. sed -i writes a temporary sibling and renames it over the copy. The redirect writes a new file from the original. This is a warm-cache rewrite of a small text file, not a claim about a multi-gigabyte log on a slow disk."
+    },
+    {
+      "id": "sparse-tar",
+      "title": "GNU tar --sparse on an 8 MiB hole",
+      "question": "Does storing the hole as a sparse archive separate from storing the zeros?",
+      "input": "apparent 8388608 bytes, 5 trials, no compression.",
+      "variants": [
+        {
+          "name": "tar --sparse",
+          "trials": [
+            {
+              "elapsed": 0.001281,
+              "user": 0.000834,
+              "system": 0.0,
+              "maxRssKb": 11772,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.001095,
+              "user": 0.000978,
+              "system": 0.0,
+              "maxRssKb": 11784,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.001317,
+              "user": 0.001018,
+              "system": 0.0,
+              "maxRssKb": 11744,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.001082,
+              "user": 0.000953,
+              "system": 0.0,
+              "maxRssKb": 11780,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.001175,
+              "user": 0.000918,
+              "system": 0.0,
+              "maxRssKb": 11768,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.001175,
+            "user": 0.000953,
+            "system": 0.0,
+            "maxRssKb": 11772
+          }
+        },
+        {
+          "name": "tar without --sparse",
+          "trials": [
+            {
+              "elapsed": 0.005603,
+              "user": 0.0,
+              "system": 0.005356,
+              "maxRssKb": 11760,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.014521,
+              "user": 0.0,
+              "system": 0.007141,
+              "maxRssKb": 11780,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.01088,
+              "user": 0.0,
+              "system": 0.006415,
+              "maxRssKb": 11760,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.01361,
+              "user": 0.0,
+              "system": 0.00616,
+              "maxRssKb": 11784,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.014685,
+              "user": 0.003431,
+              "system": 0.003431,
+              "maxRssKb": 11772,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.01361,
+            "user": 0.0,
+            "system": 0.00616,
+            "maxRssKb": 11772
+          }
+        }
+      ],
+      "note": "Medians on this run: tar --sparse median 0.0012s, tar without --sparse median 0.0136s. The gap is 0.0124s and the widest trial spread is 0.0091s, so the medians are farther apart than the scatter of this sample. That is evidence about this input, this warm cache, and this machine. It is not a universal ranking and it says nothing about cold disk or a different filesystem. Apparent size of the hole is 8388608 bytes. After the timed runs, sparse.tar is 10240 bytes and plain.tar is 8396800 bytes. Seed constant 20261108 is unused. truncate creates a hole; it does not write 8 MiB of zeros. The byte counts are archive sizes, not timings. This is one filesystem and one GNU tar."
+    },
+    {
+      "id": "taskset-pin",
+      "title": "sha256sum pinned to one CPU",
+      "question": "On one warm 8 MiB buffer, does taskset -c 0 separate from an unpinned sha256sum?",
+      "input": "8388608 bytes of 0x61, 5 trials.",
+      "variants": [
+        {
+          "name": "sha256sum",
+          "trials": [
+            {
+              "elapsed": 0.006294,
+              "user": 0.006007,
+              "system": 0.0,
+              "maxRssKb": 11776,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.006496,
+              "user": 0.006251,
+              "system": 0.0,
+              "maxRssKb": 11900,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.006179,
+              "user": 0.0,
+              "system": 0.005905,
+              "maxRssKb": 11768,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.006067,
+              "user": 0.00583,
+              "system": 0.0,
+              "maxRssKb": 11780,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.006236,
+              "user": 0.006001,
+              "system": 0.0,
+              "maxRssKb": 11768,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.006236,
+            "user": 0.006001,
+            "system": 0.0,
+            "maxRssKb": 11776
+          }
+        },
+        {
+          "name": "taskset -c 0 sha256sum",
+          "trials": [
+            {
+              "elapsed": 0.006896,
+              "user": 0.006433,
+              "system": 0.0,
+              "maxRssKb": 11784,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.007772,
+              "user": 0.007462,
+              "system": 0.0,
+              "maxRssKb": 11772,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.006608,
+              "user": 0.00632,
+              "system": 0.0,
+              "maxRssKb": 11780,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.006564,
+              "user": 0.006125,
+              "system": 0.0,
+              "maxRssKb": 11780,
+              "exitCode": 0
+            },
+            {
+              "elapsed": 0.006524,
+              "user": 0.0,
+              "system": 0.006058,
+              "maxRssKb": 11768,
+              "exitCode": 0
+            }
+          ],
+          "median": {
+            "elapsed": 0.006608,
+            "user": 0.00632,
+            "system": 0.0,
+            "maxRssKb": 11780
+          }
+        }
+      ],
+      "note": "Medians on this run: sha256sum median 0.0062s, taskset -c 0 sha256sum median 0.0066s. The gap between the fastest and slowest median is 0.0004s, which is within the widest trial spread (0.0012s). This run does not separate the variants. It is not evidence that one form is generally faster. Input is 8388608 identical bytes, seed constant 20261108 unused. taskset is util-linux, sha256sum is coreutils. The pin is CPU 0 only. No frequency scaling was changed. A single-threaded checksum often does not move when pinned; if this run does not separate the variants, that is the result."
+    }
+  ]
+}

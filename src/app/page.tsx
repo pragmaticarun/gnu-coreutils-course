@@ -26,6 +26,11 @@ export default function HomePage() {
         tools that ship in GNU coreutils, show the bytes they actually emit, and treat
         speed as a bottleneck question instead of a slogan.
       </p>
+      <p className="mt-3 max-w-2xl leading-7 text-[var(--muted)]">
+        The Companion Tools module is a separate track for the programs you reach for
+        beside that toolbox. None of those programs are GNU coreutils. Each lesson names
+        the Ubuntu package and the upstream project.
+      </p>
       <dl className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
         {[
           ["Lessons", String(course.lessons.length)],
@@ -42,6 +47,9 @@ export default function HomePage() {
       <div className="mt-6 flex flex-wrap gap-3 text-sm">
         <Link className="rounded-md bg-[var(--accent)] px-3 py-2 text-[var(--accent-ink)]" href="/lessons/orientation">
           Start with the manual
+        </Link>
+        <Link className="rounded-md border border-[var(--line)] px-3 py-2" href="/lessons/companion-boundary">
+          Companion tools
         </Link>
         <Link className="rounded-md border border-[var(--line)] px-3 py-2" href="/cookbook">
           Scenario cookbook

@@ -26,6 +26,9 @@ type SearchHit = {
 function hrefFor(hit: { kind: string; slug: string }) {
   if (hit.kind === "cookbook") return `/cookbook/${hit.slug}`;
   if (hit.kind === "reference") return `/reference/${hit.slug}`;
+  if (hit.kind === "companion") {
+    return hit.slug === "reference" ? "/reference" : `/lessons/${hit.slug}`;
+  }
   if (hit.kind === "page") return `/${hit.slug}`;
   return `/lessons/${hit.slug}`;
 }
@@ -259,7 +262,7 @@ export function SiteShell({
               <li className="px-2 py-3 text-sm text-[var(--muted)]">No matching pages.</li>
             ) : (
               results.map((hit) => (
-                <li key={`${hit.kind}-${hit.slug}`}>
+                <li key={`${hit.kind}-${hit.slug}-${hit.title}`}>
                   <Link
                     href={hrefFor(hit)}
                     onClick={() => setOpenSearch(false)}

@@ -71,6 +71,9 @@ export type CompanionEntry = {
   installed: boolean;
   path: string;
   package: string;
+  project: string;
+  group: string;
+  lesson: string | null;
   note: string;
 };
 

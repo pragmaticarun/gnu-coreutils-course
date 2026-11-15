@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Example from the GNU Coreutils Workbench (companion-boundary).
+# Re-run inside a scratch directory. Captured against GNU coreutils 9.4.
+set -eo pipefail
+
+if [ "$(id -u)" -eq 0 ]; then
+  printf 'Refusing to run as root.\n' >&2
+  exit 1
+fi
+cd "$(mktemp -d)"
+readlink -f /usr/bin/awk
+/usr/bin/awk -W version | /usr/bin/head -n 1
+/usr/bin/gawk --version | /usr/bin/head -n 1

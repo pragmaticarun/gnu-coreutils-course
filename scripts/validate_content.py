@@ -138,6 +138,175 @@ def main() -> None:
         if not proc.stdout.startswith("ok "):
             fail(f"{path.name} did not print ok: {proc.stdout!r}")
 
+    companion_slugs = {
+        "companion-boundary",
+        "gnu-grep",
+        "gnu-sed",
+        "awk-family",
+        "diffutils-and-patch",
+        "findutils-and-nul",
+        "gnu-parallel",
+        "gnu-tar",
+        "compression",
+        "timing-tools",
+        "tracing-processes",
+        "throughput-stats",
+        "procps-processes",
+        "open-files",
+        "util-linux-toolbox",
+        "helper-tools",
+    }
+    cookbook_slugs = {
+        "log-triage",
+        "large-duplicate-files",
+        "fast-backup-tarball",
+        "profile-slow-pipeline",
+        "weird-filenames",
+        "parallel-compression",
+        "cpu-pinned-benchmark",
+        "json-api-fixture",
+    }
+    seen_lessons = set()
+    seen_books = set()
+    companion_text = []
+    for path in sorted(LESSONS.glob("*.md")):
+        text = path.read_text()
+        front = frontmatter(text)
+        slug = ""
+        match = re.search(r"(?m)^slug:\s*(\S+)\s*$", front)
+        if match:
+            slug = match.group(1)
+            seen_lessons.add(slug)
+        if "module: Companion Tools" in front:
+            if slug not in companion_slugs:
+                fail(f"{path.name} is Companion Tools but slug {slug} is not registered")
+            if "not coreutils" not in text.lower():
+                fail(f"{path.name} must say the tools are not coreutils")
+            if "Ubuntu package" not in text and "package `" not in text:
+                fail(f"{path.name} must name the Ubuntu package")
+            urls = re.findall(r"https://[^\s|]+", front)
+            official = [url for url in urls if "/coreutils/manual/" not in url]
+            if not official:
+                fail(f"{path.name} needs an official non-coreutils manual URL")
+            for block in re.findall(r"```run\n(.*?)```", text, flags=re.S):
+                if "# companion:" not in block:
+                    fail(f"{path.name} run block is missing # companion:")
+            for block in exercise_blocks(text):
+                if not re.search(r"(?m)^---hint2---\n\s*\S", block):
+                    fail(f"{path.name} companion exercise needs hint2")
+            companion_text.append(text)
+    for slug in sorted(companion_slugs - seen_lessons):
+        fail(f"missing companion lesson {slug}")
+    for path in sorted(COOKBOOK.glob("*.md")):
+        text = path.read_text()
+        front = frontmatter(text)
+        match = re.search(r"(?m)^slug:\s*(\S+)\s*$", front)
+        slug = match.group(1) if match else ""
+        seen_books.add(slug)
+        if slug in cookbook_slugs:
+            if "not coreutils" not in text.lower():
+                fail(f"{path.name} must say the companion is not coreutils")
+            urls = re.findall(r"https://[^\s|]+", front)
+            if not any("/coreutils/manual/" not in url for url in urls):
+                fail(f"{path.name} needs the companion project's docs")
+            for block in exercise_blocks(text):
+                if not re.search(r"(?m)^---hint2---\n\s*\S", block):
+                    fail(f"{path.name} exercise needs hint2")
+    for slug in sorted(cookbook_slugs - seen_books):
+        fail(f"missing companion cookbook {slug}")
+    blob = "\n".join(companion_text)
+    for needle in (
+        "mawk",
+        "gawk",
+        "shell keyword",
+        "util-linux",
+        "procps",
+        "sysstat",
+        "/usr/bin/time",
+        "plocate",
+        "pigz",
+        "zstd",
+        "-print0",
+        "xargs",
+        "-T0",
+        "perf-absent",
+        "fdfind",
+        "sponge",
+        "chronic",
+        "entr",
+    ):
+        if needle not in blob:
+            fail(f"companion lessons do not mention {needle}")
+
+    required_sandboxes = [
+        "companion-log-triage.sh",
+        "companion-large-dupes.sh",
+        "companion-backup-tar.sh",
+        "companion-profile-pipeline.sh",
+        "companion-weird-names.sh",
+        "companion-parallel-compress.sh",
+        "companion-cpu-pin.sh",
+        "companion-json.sh",
+    ]
+    for name in required_sandboxes:
+        if not (SANDBOX / name).is_file():
+            fail(f"missing sandbox {name}")
+
+    course_path = ROOT / "content" / "generated" / "course.json"
+    if course_path.is_file():
+        course = json.loads(course_path.read_text())
+        rows = course.get("companions", [])
+        names = {row["name"] for row in rows}
+        for required in ("grep", "sed", "awk", "gawk", "mawk", "perf", "pigz", "zstd", "fdfind", "jq"):
+            if required not in names:
+                fail(f"companion catalog missing {required}")
+        perf = next(row for row in rows if row["name"] == "perf")
+        if perf.get("installed"):
+            fail("perf is installed; update the tracing lesson before claiming it is absent")
+        for row in rows:
+            if "not coreutils" not in row.get("note", "").lower():
+                fail(f"companion note for {row['name']} must say not coreutils")
+            if row.get("installed") and not row.get("package"):
+                fail(f"installed companion {row['name']} has no package")
+            if not row.get("project"):
+                fail(f"companion {row['name']} has no upstream project")
+        modules = {lesson["module"] for lesson in course["lessons"]}
+        if "Companion Tools" not in modules:
+            fail("course.json has no Companion Tools module")
+
+    search_path = ROOT / "public" / "search-index.json"
+    if search_path.is_file():
+        index = json.loads(search_path.read_text())
+        if not any(row.get("kind") == "companion" for row in index):
+            fail("search index has no companion entries")
+
+    companions_bench = ROOT / "public" / "benchmarks" / "companions.json"
+    if not companions_bench.is_file():
+        fail("public/benchmarks/companions.json is missing")
+    companion_run = json.loads(companions_bench.read_text())
+    disclosure = companion_run["disclosure"]
+    if "do not predict" not in disclosure.get("disclaimer", "").lower():
+        fail("companion disclaimer must say the numbers do not predict other machines")
+    if disclosure.get("separateFromSampleRun") is not True:
+        fail("companion disclosure must be marked separate from the sample run")
+    if disclosure.get("noRoot") is not True or disclosure.get("noDropCaches") is not True:
+        fail("companion disclosure must record noRoot and noDropCaches")
+    if not disclosure.get("cpuModel") or not disclosure.get("tools"):
+        fail("companion disclosure must name the CPU and the tool versions")
+    bench_ids = [item["id"] for item in companion_run["benches"]]
+    for required in (
+        "grep-fixed-locale",
+        "awk-vs-sort",
+        "compress-compressible",
+        "compress-random",
+        "xargs-parallel",
+        "sed-rewrite",
+        "sparse-tar",
+        "taskset-pin",
+    ):
+        if required not in bench_ids:
+            fail(f"companion benchmarks missing {required}")
+
     if not SUPPLEMENTS.is_file():
         fail("public/benchmarks/supplements.json is missing")
     supplement = json.loads(SUPPLEMENTS.read_text())

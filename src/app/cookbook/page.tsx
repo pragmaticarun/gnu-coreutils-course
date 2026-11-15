@@ -11,7 +11,8 @@ export default function CookbookPage() {
       <p className="mt-3 leading-7 text-[var(--muted)]">
         Short jobs you actually meet in a tree of logs, firmware blobs, and build
         artifacts. Each one was executed in a sandbox. Where coreutils is the wrong
-        tool, the recipe says so.
+        tool, the recipe says so. Recipes that call grep, tar, jq, and the rest are
+        using companion tools. None of those companions are GNU coreutils.
       </p>
       {course.cookbook.length === 0 ? (
         <p className="mt-6 text-sm text-[var(--muted)]">No recipes have been captured yet.</p>

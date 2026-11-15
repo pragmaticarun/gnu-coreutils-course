@@ -390,38 +390,102 @@ def reference_entries() -> list[dict]:
     return entries
 
 
+def owning_package(path: str) -> str:
+    query = subprocess.run(["dpkg", "-S", path], capture_output=True, text=True)
+    if query.returncode != 0:
+        return ""
+    for line in query.stdout.splitlines():
+        # Diversion notices are not the owning package line.
+        if line.startswith("diversion "):
+            continue
+        if ":" not in line:
+            continue
+        return line.split(":", 1)[0].split(",")[0].strip()
+    return ""
+
+
 def companions() -> list[dict]:
+    # name, path, project, group, lesson slug, note.
+    # Paths are absolute so a shell keyword cannot impersonate the binary.
     specs = [
-        ("find", "Recursive directory search. Not coreutils. GNU find is findutils. It is the usual producer of NUL-terminated names via -print0."),
-        ("xargs", "Builds argument lists from stdin. Not coreutils. GNU xargs is findutils. Use -0 with NUL names. It is a different failure model from a coreutils filter."),
-        ("grep", "Content search. Not coreutils. The grep package owns this binary. Coreutils can slice bytes; it does not search patterns."),
-        ("sed", "Stream editor. Not coreutils. Useful, and a different language. Do not describe a sed script as a coreutils one-liner."),
-        ("awk", "Field language. On this host /usr/bin/awk is mawk via the alternatives system, not GNU awk, and not coreutils."),
-        ("tar", "Archive format. Not coreutils. tar reads and writes its own format; cp -a does not."),
-        ("rsync", "Delta file copy. Not coreutils and not installed in the capture environment. cp has no equivalent of rsync's block algorithm."),
-        ("time", "The shell keyword `time` is not GNU time and does not print max RSS. The GNU time package is not installed here. Benchmarks use Python resource stats instead."),
-        ("perf", "Linux performance counters. Not coreutils and not installed here. Nothing in this course samples hardware counters."),
-        ("hostname", "The GNU manual documents hostname, but Ubuntu's /usr/bin/hostname is the hostname package, version string separate from coreutils."),
-        ("kill", "The GNU manual documents kill, but /usr/bin/kill on this Ubuntu image is procps. This course does not teach it as coreutils."),
-        ("uptime", "The GNU manual's uptime node is not the binary on this system. /usr/bin/uptime is procps."),
+        ("grep", "/usr/bin/grep", "GNU grep", "Text", "gnu-grep", "Line search. Not coreutils. Ubuntu package grep, upstream GNU grep."),
+        ("sed", "/usr/bin/sed", "GNU sed", "Text", "gnu-sed", "Stream editor. Not coreutils. Ubuntu package sed, upstream GNU sed. sed -i rewrites a file."),
+        ("awk", "/usr/bin/awk", "mawk (Ubuntu default awk)", "Text", "awk-family", "Not coreutils. On this host /usr/bin/awk resolves to mawk. Installing gawk normally steals the alternative; this host was set back to mawk."),
+        ("gawk", "/usr/bin/gawk", "GNU awk", "Text", "awk-family", "Not coreutils. Ubuntu package gawk, upstream GNU awk. Call it by path. gensub is not in mawk."),
+        ("mawk", "/usr/bin/mawk", "mawk", "Text", "awk-family", "Not coreutils. Ubuntu package mawk, upstream mawk by Michael Brennan. This is the awk Ubuntu selects by default."),
+        ("diff", "/usr/bin/diff", "GNU diffutils", "Text", "diffutils-and-patch", "Not coreutils. Ubuntu package diffutils. Exit status 1 means the files differ."),
+        ("cmp", "/usr/bin/cmp", "GNU diffutils", "Text", "diffutils-and-patch", "Not coreutils. Byte-wise compare from diffutils, not cmp from another project."),
+        ("sdiff", "/usr/bin/sdiff", "GNU diffutils", "Text", "diffutils-and-patch", "Not coreutils. Side-by-side diff from diffutils."),
+        ("diff3", "/usr/bin/diff3", "GNU diffutils", "Text", "diffutils-and-patch", "Not coreutils. Three-way merge from diffutils."),
+        ("patch", "/usr/bin/patch", "GNU patch", "Text", "diffutils-and-patch", "Not coreutils. Ubuntu package patch, upstream GNU patch. It applies a diff; it does not compute one."),
+        ("find", "/usr/bin/find", "GNU findutils", "Finding and batching", "findutils-and-nul", "Not coreutils. Directory walk. -print0 is the NUL producer."),
+        ("xargs", "/usr/bin/xargs", "GNU findutils", "Finding and batching", "findutils-and-nul", "Not coreutils. Builds argument lists. -0 reads NUL names. -P is a process pool, not GNU parallel."),
+        ("locate", "/usr/bin/locate", "plocate", "Finding and batching", "findutils-and-nul", "Not coreutils. On this host locate is the plocate alternative, not findutils locate."),
+        ("plocate", "/usr/bin/plocate", "plocate", "Finding and batching", "findutils-and-nul", "Not coreutils. Ubuntu package plocate. It searches a database. A private updatedb needs a chown this sandbox cannot do."),
+        ("parallel", "/usr/bin/parallel", "GNU parallel", "Finding and batching", "gnu-parallel", "Not coreutils. Ubuntu package parallel. It diverts moreutils parallel to parallel.moreutils."),
+        ("tar", "/usr/bin/tar", "GNU tar", "Archives and compression", "gnu-tar", "Not coreutils. Ubuntu package tar. Sparse archives, --exclude, and reproducible metadata are tar's job, not cp's."),
+        ("gzip", "/usr/bin/gzip", "GNU gzip", "Archives and compression", "compression", "Not coreutils. Single-threaded DEFLATE. -n drops the name and timestamp."),
+        ("pigz", "/usr/bin/pigz", "pigz", "Archives and compression", "compression", "Not coreutils. Ubuntu package pigz, upstream pigz by Mark Adler. Threaded gzip-format compressor, not a better ratio."),
+        ("bzip2", "/usr/bin/bzip2", "bzip2", "Archives and compression", "compression", "Not coreutils. Ubuntu package bzip2. Often slower than zstd and smaller only on some inputs."),
+        ("xz", "/usr/bin/xz", "XZ Utils", "Archives and compression", "compression", "Not coreutils. Ubuntu package xz-utils. High ratio, high CPU, one thread unless you ask."),
+        ("zstd", "/usr/bin/zstd", "Zstandard", "Archives and compression", "compression", "Not coreutils. Ubuntu package zstd, upstream Facebook Zstandard. -T sets threads. -T0 means one thread per core."),
+        ("time", "/usr/bin/time", "GNU time", "Timing and tracing", "timing-tools", "Not coreutils. Ubuntu package time. The bash keyword time is a different command and does not take -v."),
+        ("hyperfine", "/usr/bin/hyperfine", "hyperfine", "Timing and tracing", "timing-tools", "Not coreutils. Ubuntu package hyperfine, upstream sharkdp/hyperfine. A statistical timer. Sub-millisecond commands are inside its noise warning."),
+        ("perf", "/usr/bin/perf", "Linux perf", "Timing and tracing", "tracing-processes", "Not coreutils and not installed here. Ubuntu 24.04 linux-tools builds track kernel 6.8. This host is 6.12.113+, so there is no matching perf binary and this course records no perf counters."),
+        ("strace", "/usr/bin/strace", "strace", "Timing and tracing", "tracing-processes", "Not coreutils. Ubuntu package strace. -c summarizes syscalls, -f follows forks, -e selects calls. It is not a profiler of CPU cycles."),
+        ("ltrace", "/usr/bin/ltrace", "ltrace", "Timing and tracing", "tracing-processes", "Not coreutils. Ubuntu package ltrace. Library calls, not syscalls. Addresses change every run under ASLR."),
+        ("pv", "/usr/bin/pv", "pv", "Timing and tracing", "throughput-stats", "Not coreutils. Ubuntu package pv, upstream Pipe Viewer. It copies stdin to stdout and draws progress on stderr."),
+        ("iostat", "/usr/bin/iostat", "sysstat", "Timing and tracing", "throughput-stats", "Not coreutils. Ubuntu package sysstat. Device and CPU counters. Not part of procps."),
+        ("vmstat", "/usr/bin/vmstat", "procps-ng", "Timing and tracing", "throughput-stats", "Not coreutils. On Ubuntu this binary is the procps package (upstream procps-ng), not sysstat."),
+        ("pidstat", "/usr/bin/pidstat", "sysstat", "Timing and tracing", "throughput-stats", "Not coreutils. Ubuntu package sysstat. Per-process CPU and IO. Not the same binary as ps."),
+        ("ps", "/usr/bin/ps", "procps-ng", "Process and memory", "procps-processes", "Not coreutils. Ubuntu package procps. A snapshot of the process table."),
+        ("top", "/usr/bin/top", "procps-ng", "Process and memory", "procps-processes", "Not coreutils. Ubuntu package procps. Interactive. Use -b -n 1 for a single batch frame."),
+        ("free", "/usr/bin/free", "procps-ng", "Process and memory", "procps-processes", "Not coreutils. Ubuntu package procps. Memory totals from the kernel, not du."),
+        ("pgrep", "/usr/bin/pgrep", "procps-ng", "Process and memory", "procps-processes", "Not coreutils. Ubuntu package procps. Matches processes. Exit 1 means no match."),
+        ("pkill", "/usr/bin/pkill", "procps-ng", "Process and memory", "procps-processes", "Not coreutils. Ubuntu package procps. Sends a signal. A pattern that appears in your own shell command can match the shell."),
+        ("lsof", "/usr/bin/lsof", "lsof", "Open files", "open-files", "Not coreutils. Ubuntu package lsof. Lists open file descriptors, including deleted paths a process still holds."),
+        ("fuser", "/usr/bin/fuser", "psmisc", "Open files", "open-files", "Not coreutils. Ubuntu package psmisc. Which processes hold a path. Exit 1 means none."),
+        ("column", "/usr/bin/column", "util-linux", "util-linux", "util-linux-toolbox", "Not coreutils. Ubuntu binary package bsdextrautils, source package util-linux."),
+        ("rev", "/usr/bin/rev", "util-linux", "util-linux", "util-linux-toolbox", "Not coreutils. Ubuntu package util-linux. Reverses each line. It is not rev from elsewhere."),
+        ("flock", "/usr/bin/flock", "util-linux", "util-linux", "util-linux-toolbox", "Not coreutils. Ubuntu package util-linux. Advisory lock around a command. -n fails instead of waiting."),
+        ("taskset", "/usr/bin/taskset", "util-linux", "util-linux", "util-linux-toolbox", "Not coreutils. Ubuntu package util-linux. Pins a process to CPUs. The shell expands $$ before taskset runs."),
+        ("ionice", "/usr/bin/ionice", "util-linux", "util-linux", "util-linux-toolbox", "Not coreutils. Ubuntu package util-linux. I/O scheduling class. Idle class is a hint, not a bandwidth cap."),
+        ("fallocate", "/usr/bin/fallocate", "util-linux", "util-linux", "util-linux-toolbox", "Not coreutils. Ubuntu package util-linux. Allocates or punches holes. Apparent size stays; du may drop."),
+        ("findmnt", "/usr/bin/findmnt", "util-linux", "util-linux", "util-linux-toolbox", "Not coreutils. Ubuntu package util-linux. Reads the mount table. df is the coreutils view of space."),
+        ("lsblk", "/usr/bin/lsblk", "util-linux", "util-linux", "util-linux-toolbox", "Not coreutils. Ubuntu package util-linux. Block devices. Disk names are host-specific."),
+        ("script", "/usr/bin/script", "util-linux", "util-linux", "util-linux-toolbox", "Not coreutils. Ubuntu binary package bsdutils, source package util-linux. Records a typescript, including a carriage return."),
+        ("logger", "/usr/bin/logger", "util-linux", "util-linux", "util-linux-toolbox", "Not coreutils. Ubuntu binary package bsdutils, source package util-linux. Writes to syslog. This host has no /dev/log."),
+        ("setsid", "/usr/bin/setsid", "util-linux", "util-linux", "util-linux-toolbox", "Not coreutils. Ubuntu package util-linux. Starts a new session. $$ in the parent is the parent's pid."),
+        ("prlimit", "/usr/bin/prlimit", "util-linux", "util-linux", "util-linux-toolbox", "Not coreutils. Ubuntu package util-linux. Sets resource limits for a child. ulimit is the shell builtin."),
+        ("bc", "/usr/bin/bc", "GNU bc", "Helpers", "helper-tools", "Not coreutils. Ubuntu package bc. Arbitrary precision. scale=2; 1/3 prints .33 with no leading zero."),
+        ("jq", "/usr/bin/jq", "jq", "Helpers", "helper-tools", "Not coreutils. Ubuntu package jq, upstream jqlang jq. JSON filter. It is not a streaming awk for arbitrary text."),
+        ("rg", "/usr/bin/rg", "ripgrep", "Helpers", "helper-tools", "Not coreutils. Ubuntu package ripgrep, binary rg, upstream BurntSushi ripgrep. Respects gitignore inside a git work tree."),
+        ("fdfind", "/usr/bin/fdfind", "fd", "Helpers", "helper-tools", "Not coreutils. Ubuntu package fd-find ships fdfind, not fd. Upstream project is fd."),
+        ("sponge", "/usr/bin/sponge", "moreutils", "Helpers", "helper-tools", "Not coreutils. Ubuntu package moreutils. Soaks stdin, then writes the file, so a pipeline can read and replace the same path."),
+        ("ts", "/usr/bin/ts", "moreutils", "Helpers", "helper-tools", "Not coreutils. Ubuntu package moreutils. Prefixes timestamps. The clock value changes every run."),
+        ("ifne", "/usr/bin/ifne", "moreutils", "Helpers", "helper-tools", "Not coreutils. Ubuntu package moreutils. Runs a command only when stdin is non-empty."),
+        ("chronic", "/usr/bin/chronic", "moreutils", "Helpers", "helper-tools", "Not coreutils. Ubuntu package moreutils. Swallows output of a successful command and shows it when the command fails."),
+        ("entr", "/usr/bin/entr", "entr", "Helpers", "helper-tools", "Not coreutils. Ubuntu package entr, upstream eradman entr. Runs a command when files change. -n skips the TTY, -z exits after the utility."),
+        ("rsync", "/usr/bin/rsync", "rsync", "Boundary", "companion-boundary", "Not coreutils and not installed in the capture environment. No rsync flags are demonstrated."),
+        ("hostname", "/usr/bin/hostname", "hostname", "Boundary", "companion-boundary", "Not coreutils. The GNU coreutils manual documents hostname, but Ubuntu's binary is the hostname package."),
+        ("kill", "/usr/bin/kill", "procps-ng", "Boundary", "companion-boundary", "Not coreutils. The manual documents kill, but /usr/bin/kill on this image is procps. The shell also has a kill builtin."),
+        ("uptime", "/usr/bin/uptime", "procps-ng", "Boundary", "companion-boundary", "Not coreutils. The manual's uptime node is not this binary. /usr/bin/uptime is procps."),
     ]
     rows = []
-    for name, note in specs:
-        # Bash builtins and keywords (kill, time) must not win over /usr/bin.
-        path = f"/usr/bin/{name}"
-        package = ""
+    for name, path, project, group, lesson, note in specs:
         installed = Path(path).is_file()
+        package = ""
         if installed:
-            query_path = str(Path(path).resolve())
-            query = subprocess.run(["dpkg", "-S", query_path], capture_output=True, text=True)
-            if query.returncode == 0 and ":" in query.stdout:
-                package = query.stdout.split(":", 1)[0].split(",")[0]
+            package = owning_package(str(Path(path).resolve()))
         rows.append(
             {
                 "name": name,
                 "installed": installed,
                 "path": path,
                 "package": package,
+                "project": project,
+                "group": group,
+                "lesson": lesson,
                 "note": note,
             }
         )
@@ -503,6 +567,26 @@ def search_index(course: dict) -> list[dict]:
                 "summary": entry["summary"],
                 "number": 0,
                 "text": entry["note"],
+            }
+        )
+    for entry in course.get("companions", []):
+        rows.append(
+            {
+                "kind": "companion",
+                "slug": entry.get("lesson") or "reference",
+                "title": entry["name"],
+                "module": entry.get("group") or "Companion Tools",
+                "summary": entry["note"],
+                "number": 0,
+                "text": " ".join(
+                    [
+                        entry["name"],
+                        entry.get("project", ""),
+                        entry.get("package", ""),
+                        entry["note"],
+                        "not coreutils",
+                    ]
+                ),
             }
         )
     for slug, title, summary in (
