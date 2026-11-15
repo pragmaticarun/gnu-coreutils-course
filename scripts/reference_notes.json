@@ -65,6 +65,12 @@
     "manual": "chmod invocation",
     "note": "Changes mode bits with an octal mode or a symbolic mode. --reference copies a mode. It does not change the owner. Recursive -R on a tree you do not mean to publish is the usual accident."
   },
+  "chroot": {
+    "section": "Privileged",
+    "lesson": "orientation",
+    "manual": "chroot invocation",
+    "note": "Runs a command with a different root directory. Ubuntu installs the coreutils binary at /usr/sbin/chroot, so a scan of /usr/bin misses it. It needs privilege and a prepared root filesystem. It is not a sandbox by itself. This course prints the package and the version line and does not call chroot on a directory. Status 125 means chroot itself failed; 126 and 127 mean the inner command could not be started."
+  },
   "chown": {
     "section": "Attributes",
     "lesson": "permissions-and-install",

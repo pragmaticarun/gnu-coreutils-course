@@ -20,7 +20,7 @@ gnu_vs_bsd: |
 
 On this machine `cp --reflink=always` fails with "Operation not supported". The capture disk is ext4, which does not do reflink clones. `--reflink=auto` is the default-ish polite request: try a clone, and if the kernel refuses, copy the bytes. `--reflink=never` forces the byte copy. A script that requires a clone, because it is about to mutate one side of a huge image, must pass `--reflink=always` and treat a non-zero status as "do not pretend these files are independent". A script that only wants a copy should pass `--reflink=never` when a silent clone would surprise a later checksum of allocated blocks, or leave the default if either result is acceptable. Say which one you mean.
 
-Sparse files are a different axis. `truncate -s 1M` creates a hole. `stat` shows a large `%s` and a small `%b`. `cp --sparse=auto` uses a heuristic to keep holes. `--sparse=always` tries to make a sparse destination even when it has to detect zero runs. `--sparse=never` writes the zeros. `du -B1` without `--apparent-size` reports allocated space. `du -b` reports apparent size. If those numbers match, you do not have a hole.
+Sparse files are a different axis. `truncate -s 1M` creates a hole. `stat` shows a large `%s` and a small `%b`. `cp --sparse=auto` uses a heuristic to keep holes. `--sparse=always` tries to make a sparse destination even when it has to detect zero runs. `--sparse=never` writes the zeros. `du -B1` without `--apparent-size` reports allocated space. `du -b` reports apparent size. If those numbers match, you do not have a hole. The worked example copies one 1 MiB hole both ways. On this ext4 capture, `--sparse=always` leaves the destination with zero allocated blocks and `--sparse=never` allocates the full apparent size. Those block counts are a property of this filesystem, not a promise about every disk. The assertion script is [sandbox/sparse-fill.sh](/sandbox/sparse-fill.sh). It refuses to run as root.
 
 `-a` is archive mode: recursive, preserve links as links, and preserve attributes. Copying a symlink with `-a` copies the symlink. `cp -L` follows it and writes a regular file. That choice matters for a toolchain sysroot, where a symlink to a shared library must stay a symlink.
 
@@ -62,6 +62,18 @@ set -e
 /usr/bin/cp --sparse=auto hole hole-copy
 /usr/bin/stat -c 'src size=%s blocks=%b' hole
 /usr/bin/stat -c 'dst size=%s blocks=%b' hole-copy
+```
+
+### Filling the hole on purpose
+
+```run
+# title: --sparse=never writes the zeros
+/usr/bin/truncate -s 1M hole
+/usr/bin/cp --sparse=always hole kept
+/usr/bin/cp --sparse=never hole filled
+/usr/bin/stat -c 'kept size=%s blocks=%b' kept
+/usr/bin/stat -c 'filled size=%s blocks=%b' filled
+/usr/bin/du -B1 kept filled
 ```
 
 ### Do not clobber, without -n
@@ -136,6 +148,24 @@ The destination content should stay `keep`.
 /usr/bin/printf 'replace\n' > new
 /usr/bin/cp --update=none new old
 /usr/bin/cat old
+```
+
+```exercise
+expect-exit: 0
+---title---
+Show the copy that fills the hole
+---prompt---
+Create a 1 MiB hole, copy it with `--sparse=never`, and print `du -B1` of the destination.
+---hint---
+`truncate -s 1M` creates the hole. `--sparse=never` is the copy that writes zeros.
+---hint2---
+`du -B1` is allocated bytes. `ls -l` shows the apparent size either way, so it cannot tell you the hole survived.
+---solution---
+On this filesystem the filled copy allocates 1048576 bytes. `--sparse=always` of the same hole stays at 0 allocated bytes. Apparent size is 1048576 in both cases.
+---script---
+/usr/bin/truncate -s 1M hole
+/usr/bin/cp --sparse=never hole filled
+/usr/bin/du -B1 filled
 ```
 
 ## Performance

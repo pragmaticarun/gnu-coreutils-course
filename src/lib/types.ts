@@ -20,6 +20,7 @@ export type CapturedExercise = {
   title: string;
   prompt: string;
   hint: string;
+  hint2?: string;
   solution: string;
   script: string;
   stdout: string;

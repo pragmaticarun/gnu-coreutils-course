@@ -62,7 +62,7 @@ HARNESS = textwrap.dedent(
     import resource, subprocess, sys, time
     cmd = sys.argv[1:]
     start = time.perf_counter()
-    proc = subprocess.run(cmd)
+    proc = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     elapsed = time.perf_counter() - start
     usage = resource.getrusage(resource.RUSAGE_CHILDREN)
     print(f"{elapsed:.6f} {usage.ru_utime:.6f} {usage.ru_stime:.6f} {usage.ru_maxrss} {proc.returncode}")

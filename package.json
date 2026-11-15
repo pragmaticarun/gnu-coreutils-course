@@ -6,7 +6,8 @@
     "generate": "python3 scripts/assemble.py",
     "dev": "next dev -H 0.0.0.0 -p 41827",
     "build": "next build",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "python3 scripts/validate_content.py"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.3.1",

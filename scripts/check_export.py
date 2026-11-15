@@ -79,6 +79,7 @@ def main() -> None:
         OUT / "search-index.json",
         OUT / "downloads" / "coreutils-examples.zip",
         OUT / "benchmarks" / "sample-run.json",
+        OUT / "benchmarks" / "supplements.json",
     ]
     for path in required:
         if not path.is_file():

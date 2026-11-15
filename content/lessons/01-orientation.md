@@ -13,6 +13,7 @@ objectives:
   - Name the Ubuntu binaries that the GNU manual documents but this package does not own
 manual: Introduction | https://www.gnu.org/software/coreutils/manual/html_node/Introduction.html
 manual: Exit status | https://www.gnu.org/software/coreutils/manual/html_node/Exit-status.html
+manual: chroot invocation | https://www.gnu.org/software/coreutils/manual/html_node/chroot-invocation.html
 gnu_vs_bsd: |
   macOS and the BSDs ship a different userland. `ls --version` is a GNU question and fails on BSD ls. Homebrew and similar systems often install the GNU tools under a `g` prefix (`gls`, `gdate`, `gstat`) so they do not replace the BSD ones. This course ran only the Ubuntu GNU binaries. BSD notes later in the course are documented differences, not captured output.
 ---
@@ -26,6 +27,10 @@ The shell sits in front of every command line. Bash provides its own `echo`, `pr
 Exit status is how these short programs talk back. The manual's rule for almost every command is that zero means success and non-zero means failure. It then lists exceptions whose statuses mean something narrower: `chroot`, `env`, `expr`, `ls`, `nice`, `nohup`, `numfmt`, `printenv`, `runcon`, `sort`, `stdbuf`, `test`, `timeout`, and `tty`. `sort -c` uses 1 to mean "not in order" and 2 to mean "I could not run the check". `timeout` uses 124 when it kills the child. `test` uses 1 as the answer "false". Reading a bare non-zero as "the tool is broken" will make you mis-handle all three.
 
 Ubuntu does not install every name the GNU manual has a chapter for. On this image, `hostname` belongs to the hostname package, `kill` and `uptime` belong to procps, and `find` belongs to findutils. Teaching those binaries as if they were this coreutils 9.4 build would be a lie about the system you develop on. The reference marks them as companions. The lessons that need them say so in the example badge.
+
+`chroot` is the other way around. The manual has a chapter, and this package does install the binary, but the path is `/usr/sbin/chroot`, not `/usr/bin/chroot`. `dpkg -S` attributes that path to coreutils. A reference built only from `/usr/bin` drops it. The program changes a process's root directory. Doing that needs privilege and a prepared root filesystem, and it is not a sandbox by itself. This course records the package and the version line. It does not call `chroot` on a directory. The assertion script [sandbox/chroot-ownership.sh](/sandbox/chroot-ownership.sh) checks the package and refuses to run as root.
+
+The machine that compiles an Android app is not the device that runs the app. Android images usually provide Toybox or Toolbox under familiar command names, with different flags. `sort -V`, `sha256sum -c`, and `numfmt --to=iec` in these lessons are GNU coreutils on the Ubuntu host. The same text pasted into `adb shell` is a different program.
 
 Performance shows up later as a property of a bottleneck: locale collation, a sort that spills, a pipe that block-buffers, a copy that cannot reflink. Nothing in this orientation lesson is a speed ranking. The useful habit is to ask which resource is scarce before you add a flag.
 
@@ -67,6 +72,14 @@ set -e
 dpkg -S /usr/bin/hostname
 dpkg -S /usr/bin/kill
 dpkg -S /usr/bin/uptime
+```
+
+### chroot is coreutils, and it is not in /usr/bin
+
+```run
+# title: Package and version of /usr/sbin/chroot
+dpkg -S /usr/sbin/chroot
+/usr/sbin/chroot --version | /usr/bin/head -n 1
 ```
 
 ## Recipes
@@ -130,6 +143,22 @@ set +e
 status=$?
 set -e
 /usr/bin/printf 'status:%s\n' "$status"
+```
+
+```exercise
+expect-exit: 0
+---title---
+Name the package that owns chroot
+---prompt---
+Print the package that owns `/usr/sbin/chroot`. Do not run `chroot` on a directory.
+---hint---
+`dpkg -S` maps a path to a package. The path is under `sbin`.
+---hint2---
+A `--help` URL on gnu.org is the upstream manual. The `.deb` that installed the file is a separate fact. `--version` is enough to see the coreutils banner.
+---solution---
+The line starts with `coreutils:`. The binary is part of this package even though it does not live in `/usr/bin`.
+---script---
+dpkg -S /usr/sbin/chroot
 ```
 
 ## Performance
